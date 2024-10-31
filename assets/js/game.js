@@ -1,3 +1,12 @@
+/**
+ * Robot Pollinator Game
+ * 
+ * Description: Game Javascript
+ *
+ * @author: Leamsi Fontánez - lfontanez@r1software.com
+ * R1 Software - The soul is in the software
+ * https://r1software.com
+ */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
@@ -634,7 +643,6 @@ setInterval(() => {
         });
     });
 }, 16);
-
 
 loadSettings();
 updateInstructions();

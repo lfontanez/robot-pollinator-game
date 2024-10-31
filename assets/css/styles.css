@@ -1,4 +1,13 @@
-  body {
+/**
+ * Robot Pollinator Game
+ * 
+ * Description: Styles (CSS)
+ *
+ * @author: Leamsi Fontánez - lfontanez@r1software.com
+ * R1 Software - The soul is in the software
+ * https://r1software.com
+ */
+ body {
     margin: 0;
     overflow: hidden;
     background: #1a2432;
