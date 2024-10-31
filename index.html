@@ -1,0 +1,144 @@
+<html>
+  <head>
+    <title>Robot Pollinator Game</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<noscript>Sorry, your browser does not support JavaScript!</noscript>
+<div id="introScreen">
+  <div id="menuButtons">
+    <button onclick="startGame()">Start Game</button>
+    <button onclick="showInstructions()">Instructions</button>
+    <button onclick="showSettings()">Settings</button>
+  </div>
+</div>
+
+<div id="settingsScreen">
+  <h2>Game Settings</h2>
+  <div class="settings-tabs">
+    <button class="tab-button active" onclick="openTab('gameSettings')">Game Settings</button>
+    <button class="tab-button" onclick="openTab('audioSettings')">Audio</button>
+    <button class="tab-button" onclick="openTab('visualSettings')">Visual</button>
+  </div>
+  
+  <form class="settings-form" onsubmit="return false;">
+    <div id="gameSettings" class="tab-content active">
+       <label>
+        Game Speed:
+        <input type="number" id="gameSpeed" min="1" max="5" value="5">
+      </label>
+      <label>
+        Game Duration (seconds):
+        <input type="number" id="gameDuration" min="30" max="600" value="90">
+      </label>
+      <label>
+        Points to Win:
+        <input type="number" id="pointsToWin" min="100" max="5000" value="1000">
+      </label>
+      <label>
+        Points per Match:
+        <input type="number" id="pointsPerMatch" min="10" max="500" value="100">
+      </label>
+      <label>
+        Penalty Points:
+        <input type="number" id="penaltyPoints" min="0" max="500" value="100">
+      </label>
+    </div>
+
+    <div id="audioSettings" class="tab-content">
+      <label>
+        Background Music:
+        <input type="file" id="bgMusicUpload" accept="audio/*">
+      </label>
+      <label>
+        Win Sound:
+        <input type="file" id="winSoundUpload" accept="audio/*">
+      </label>
+      <label>
+        Game Over Sound:
+        <input type="file" id="loseSoundUpload" accept="audio/*">
+      </label>
+    </div>
+
+    <div id="visualSettings" class="tab-content">
+      <label>
+        Game Background:
+        <input type="file" id="bgImageUpload" accept="image/*">
+      </label>
+      <label>
+        Title Screen Background:
+        <input type="file" id="titleBgImageUpload" accept="image/*">
+      </label>
+    </div>
+
+    <div class="settings-buttons">
+      <button onclick="saveSettings()">Save Settings</button>
+      <button onclick="closeSettings()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div id="instructions">
+  <h2>How to Play</h2>
+  <ul>
+    <li>Move your pollinator robot by moving your mouse cursor - it will follow!</li>
+    <li>Press [SPACEBAR] near male flowers to collect their pollen</li>
+    <li>Left-click to shoot pollen at female flowers</li>
+    <li>Right-click to switch between collected pollen colors</li>
+    <li>Match the pollen color to the female flower color for +100 points</li>
+    <li>Wrong color matches will subtract 100 points</li>
+    <li>Reach 1000 points within 90 seconds to win!</li>
+    <li>Press [P] to PAUSE / RESUME</li>
+    <li>Press [Q] to QUIT</li>
+  </ul>
+  <button onclick="hideInstructions()">Back to Menu</button>
+</div>
+<div id="score">Score: 0</div>
+<div id="timer">Time: 1:30</div>
+<div id="currentColor">Current Pollen: None</div>
+<div id="gameOver">
+  <h2 id="gameOverTitle"></h2>
+  <p id="finalMessage"></p>
+  <p id="storyMessage"></p>
+  <button onclick="quitToTitle()">RESET</button>
+</div>
+<div id="footer">Copyright &copy; 2024 R1 Software</div>
+<div id="pauseOverlay">
+  <h2>PAUSED</h2>
+  <p>Press 'P' to resume</p>
+</div>
+<div id="quitOverlay">
+  <h2>QUIT GAME?</h2>
+  <div class="quit-buttons">
+    <button onclick="quitToTitle()">YES</button>
+    <button onclick="hideQuitOverlay()">NO</button>
+  </div>
+</div>
+<audio id="bgMusic" loop>
+  <source src="assets/audio/game.mp3" type="audio/mpeg">
+</audio>
+<audio id="winSound">
+  <source src="assets/audio/win.mp3" type="audio/mpeg">
+</audio>
+<audio id="pollenCollectSound">
+  <source src="assets/audio/pollen.mp3" type="audio/mpeg">
+</audio>
+<audio id="shootSound">
+  <source src="assets/audio/shot.mp3" type="audio/mpeg">
+</audio>
+<audio id="successSound">
+  <source src="assets/audio/success.mp3" type="audio/mpeg">
+</audio>
+<audio id="failureSound">
+  <source src="assets/audio/fail.mp3" type="audio/mpeg">
+</audio>
+<audio id="gameOverSound">
+  <source src="assets/audio/game-over.mp3" type="audio/mpeg">
+</audio>
+<div id="gameCOntainer">
+<canvas id="gameCanvas"></canvas>
+</div>
+<script type="text/javascript" src="assets/js/game.js"></script>
+</body>
+</html>
