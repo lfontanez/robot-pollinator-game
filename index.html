@@ -1,11 +1,18 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="R1 Software">
+    <meta name="description" content="Robot Pollinator Game is a fun and educational web-based game where players control a robot pollinator to help pollinate flowers and earn points.">
     <title>Robot Pollinator Game</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-<noscript>Sorry, your browser does not support JavaScript!</noscript>
+  <noscript>Sorry, your browser does not support JavaScript!</noscript>
+ 
+<!-- Game Menu -->  
 <div id="introScreen">
   <div id="menuButtons">
     <button onclick="startGame()">Start Game</button>
@@ -14,6 +21,7 @@
   </div>
 </div>
 
+<!-- Game Settings -->
 <div id="settingsScreen">
   <h2>Game Settings</h2>
   <div class="settings-tabs">
@@ -79,6 +87,7 @@
   </form>
 </div>
 
+<!-- Instructions -->
 <div id="instructions">
   <h2>How to Play</h2>
   <ul>
@@ -94,20 +103,22 @@
   </ul>
   <button onclick="hideInstructions()">Back to Menu</button>
 </div>
-<div id="score">Score: 0</div>
-<div id="timer">Time: 1:30</div>
-<div id="currentColor">Current Pollen: None</div>
+
+<!-- Game Over -->
 <div id="gameOver">
   <h2 id="gameOverTitle"></h2>
   <p id="finalMessage"></p>
   <p id="storyMessage"></p>
   <button onclick="quitToTitle()">RESET</button>
 </div>
-<div id="footer">Copyright &copy; 2024 R1 Software</div>
+
+<!-- Pause / Resume -->
 <div id="pauseOverlay">
   <h2>PAUSED</h2>
   <p>Press 'P' to resume</p>
 </div>
+
+<!-- Quit -->
 <div id="quitOverlay">
   <h2>QUIT GAME?</h2>
   <div class="quit-buttons">
@@ -115,6 +126,7 @@
     <button onclick="hideQuitOverlay()">NO</button>
   </div>
 </div>
+
 <audio id="bgMusic" loop>
   <source src="assets/audio/game.mp3" type="audio/mpeg">
 </audio>
@@ -136,7 +148,17 @@
 <audio id="gameOverSound">
   <source src="assets/audio/game-over.mp3" type="audio/mpeg">
 </audio>
+
+<!-- Game  -->
+<div id="score">Score: 0</div>
+<div id="timer">Time: 1:30</div>
+<div id="currentColor">Current Pollen: None</div>
 <canvas id="gameCanvas"></canvas>
+
+<!-- Footer -->
+<div id="footer">Copyright &copy; 2024 R1 Software</div>
+
+<!-- JavaScript Files -->
 <script type="text/javascript" src="assets/js/game.js"></script>
 </body>
 </html>
