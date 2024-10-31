@@ -1,3 +1,5 @@
+![Robot Pollinator Logo](robot-pollinator-game.jpg)
+
 # Robot Pollinator Game
 
 Robot Pollinator Game is a fun and educational web-based SPA game where players control a robot pollinator to help pollinate flowers and earn points. The game is designed to teach about the importance of pollination in a fun and interactive way.
