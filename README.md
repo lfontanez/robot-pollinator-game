@@ -1,3 +1,19 @@
+ ____   ___  ____   ___ _____                             
+|  _ \ / _ \| __ ) / _ \_   _|                            
+| |_) | | | |  _ \| | | || |                              
+|  _ <| |_| | |_) | |_| || |                              
+|_|_\_\\___/|____/ \___/ |_| _   _    _  _____ ___  ____  
+|  _ \ / _ \| |   | |   |_ _| \ | |  / \|_   _/ _ \|  _ \ 
+| |_) | | | | |   | |    | ||  \| | / _ \ | || | | | |_) |
+|  __/| |_| | |___| |___ | || |\  |/ ___ \| || |_| |  _ < 
+|_|    \___/|_____|_____|___|_| \_/_/   \_\_| \___/|_| \_\
+
+......(\_/)
+......( '_')
+..../""""""""""""\======░ ▒▓▓█D
+/"""""""""""""""""""""""\
+\_@_@_@_@_@_@_@_@_@_@_@_/
+
 # Robot Pollinator Game
 
 Robot Pollinator Game is a fun and educational web-based SPA game where players control a robot pollinator to help pollinate flowers and earn points. The game is designed to teach about the importance of pollination in a fun and interactive way.
