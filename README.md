@@ -36,7 +36,7 @@ The game offers various settings to customize the gameplay experience:
 - **Shoot Pollen:** Left-click.
 - **Switch Pollen Colors:** Right-click.
 - **Pause/Resume Game:** Press 'P'.
-- **Quit Game:** Click 'YES' on the confirmation prompt.
+- **Quit Game:** Press 'Q', then click 'YES/NO' on the confirmation prompt.
 
 ## Getting Started
 

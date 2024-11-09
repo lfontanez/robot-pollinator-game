@@ -85,7 +85,7 @@
     border-radius: 50%;
     display: inline-block;
   }
-  #gameOver h2 {
+  #gameOverTitle {
     font-size: xxx-large;
   }
   #gameOver {
@@ -129,21 +129,7 @@
     justify-content: center;
     color: white;
   }
-  #introScreen h1 {
-    font-size: 48px;
-    margin-bottom: 30px;
-    background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #FFD93D);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: titleGlow 2s ease-in-out infinite alternate;
-  }
-
-  @keyframes titleGlow {
-    from { filter: drop-shadow(0 0 2px rgba(255,255,255,0.3)); }
-    to { filter: drop-shadow(0 0 10px rgba(255,255,255,0.6)); }
-  }
-  #introScreen button {
+   #introScreen button {
     margin: 10px;
     padding: 15px 30px;
     font-size: 20px;

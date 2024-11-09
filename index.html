@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<!-- Game Settings Screen-->
+<!-- Game Settings -->
 <div id="settingsScreen">
   <h2>Game Settings</h2>
   <div class="settings-tabs">
@@ -30,32 +30,30 @@
     <button class="tab-button" onclick="openTab('visualSettings')">Visual</button>
   </div>
   
-  <!-- General Settings -->
-  <form class="settings-form" onsubmit="return false;">
+  <form id="settings" class="settings-form" onsubmit="return false;">
     <div id="gameSettings" class="tab-content active">
        <label>
         Game Speed:
-        <input type="number" id="gameSpeed" min="1" max="5" value="5">
+        <input type="number" id="gameSpeed" min="1" max="5" value="3" required>
       </label>
       <label>
         Game Duration (seconds):
-        <input type="number" id="gameDuration" min="30" max="600" value="90">
+        <input type="number" id="gameDuration" min="30" max="600" value="90" required>
       </label>
       <label>
         Points to Win:
-        <input type="number" id="pointsToWin" min="100" max="5000" value="1000">
+        <input type="number" id="pointsToWin" min="100" max="5000" value="1000" required>
       </label>
       <label>
         Points per Match:
-        <input type="number" id="pointsPerMatch" min="10" max="500" value="100">
+        <input type="number" id="pointsPerMatch" min="10" max="500" value="100" required>
       </label>
       <label>
         Penalty Points:
-        <input type="number" id="penaltyPoints" min="0" max="500" value="100">
+        <input type="number" id="penaltyPoints" min="0" max="500" value="100" required>
       </label>
     </div>
 
-    <!-- Audio Settings -->
     <div id="audioSettings" class="tab-content">
       <label>
         Background Music:
@@ -71,7 +69,6 @@
       </label>
     </div>
 
-    <!-- Visual Settings -->
     <div id="visualSettings" class="tab-content">
       <label>
         Game Background:
@@ -130,16 +127,7 @@
   </div>
 </div>
 
-<!-- Game  -->
-<div id="score">Score: 0</div>
-<div id="timer">Time: 1:30</div>
-<div id="currentColor">Current Pollen: None</div>
-<canvas id="gameCanvas"></canvas>
-
-<!-- Footer -->
-<div id="footer">Copyright &copy; 2024 R1 Software</div>
-
-<!-- Audio / Sounds -->
+<!-- Audio -->
 <audio id="bgMusic" loop>
   <source src="assets/audio/game.mp3" type="audio/mpeg">
 </audio>
@@ -161,6 +149,15 @@
 <audio id="gameOverSound">
   <source src="assets/audio/game-over.mp3" type="audio/mpeg">
 </audio>
+
+<!-- Game  -->
+<div id="score">Score: 0</div>
+<div id="timer">Time: 1:30</div>
+<div id="currentColor">Current Pollen: None</div>
+<canvas id="gameCanvas"></canvas>
+
+<!-- Footer -->
+<div id="footer">Copyright &copy; 2024 R1 Software</div>
 
 <!-- JavaScript Files -->
 <script type="text/javascript" src="assets/js/game.js"></script>

@@ -1,7 +1,7 @@
 /**
  * Robot Pollinator Game
  * 
- * Description: Game Javascript
+ * Description: JavaScript (JS)
  *
  * @author: Leamsi Fontánez - lfontanez@r1software.com
  * R1 Software - The soul is in the software
@@ -33,14 +33,14 @@ let isMovingTowardsMouse = false;
 
 // Game settings with defaults
 let gameSettings = {
-  speed: 5,
+  speed: 3,
   duration: 90000,
   pointsToWin: 1000,
   pointsPerMatch: 100,
   penaltyPoints: 100,
-  bgMusic: '',
-  bgImage: '',
-  titleBgImage: ''
+  bgMusic: '../audio/game.mp3',
+  bgImage: '../backgrounds/terrain.jpg',
+  titleBgImage: '../backgrounds/title.jpg'
 };
 
 // Load settings from localStorage
@@ -50,7 +50,7 @@ function loadSettings() {
     gameSettings = JSON.parse(saved);
   }  
     // Update form values
-    if (!gameSettings.speed) gameSettings.speed = 5;
+    if (!gameSettings.speed) gameSettings.speed = 3;
     document.getElementById('gameSpeed').value = gameSettings.speed;
     document.getElementById('gameDuration').value = gameSettings.duration / 1000;
     const minutes = Math.floor(gameSettings.duration / 60000000);
@@ -60,7 +60,7 @@ function loadSettings() {
     document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
     document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
     if (gameSettings.bgImage) document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`; 
-    if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage}')`;   
+    if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;   
     updateInstructions(); // Update instructions when settings load
 }
 
@@ -77,45 +77,49 @@ function closeSettings() {
 }
 
 function saveSettings() {
-  // Get base game settings
-  gameSettings = {
-    speed: document.getElementById('gameSpeed').value,
-    duration: document.getElementById('gameDuration').value * 1000,
-    pointsToWin: parseInt(document.getElementById('pointsToWin').value),
-    pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
-    penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
-    bgMusic: document.getElementById('bgMusic').src,
-    bgImage: gameSettings.bgImage // Preserve the current bgImage URL
-  };
-
-  // Apply audio settings immediately
-  const bgMusic = document.getElementById('bgMusic');
-  const winSound = document.getElementById('winSound');
-  const gameOverSound = document.getElementById('gameOverSound');
-
-  // If new files were selected, their URLs would already be set via the change event handlers
-  // Just make sure to apply any new background music right away
-  if (bgMusic.src !== gameSettings.bgMusic) {
-    bgMusic.src = gameSettings.bgMusic;
-  }
-
-  // Apply visual settings
-  if (gameSettings.bgImage) {
-    document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
-  } else {
-    document.getElementById('gameCanvas').style.backgroundImage = `url('assets/backgrounds/terrain.jpg')`;
-  }
-
-  // Apply title background if set
-  if (gameSettings.titleBgImage) {
-    document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
-  } else {
-    document.getElementById('introScreen').style.backgroundImage = `url('assets/backgrounds/title.jpg')`;
-  }
+  form = document.getElementById('settings');
   
-  localStorage.setItem('robotPollinatorSettings', JSON.stringify(gameSettings));
-  updateInstructions();
-  closeSettings();
+  if (form.checkValidity()) {
+      // Get base game settings
+      gameSettings = {
+        speed: document.getElementById('gameSpeed').value,
+        duration: document.getElementById('gameDuration').value * 1000,
+        pointsToWin: parseInt(document.getElementById('pointsToWin').value),
+        pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
+        penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
+        bgMusic: document.getElementById('bgMusic').src,
+        bgImage: gameSettings.bgImage // Preserve the current bgImage URL
+      };
+    
+      // Apply audio settings immediately
+      const bgMusic = document.getElementById('bgMusic');
+      const winSound = document.getElementById('winSound');
+      const gameOverSound = document.getElementById('gameOverSound');
+    
+      // If new files were selected, their URLs would already be set via the change event handlers
+      // Just make sure to apply any new background music right away
+      if (bgMusic.src !== gameSettings.bgMusic) {
+        bgMusic.src = gameSettings.bgMusic;
+      }
+    
+      // Apply visual settings
+      if (gameSettings.bgImage) {
+        document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
+      } else {
+        document.getElementById('gameCanvas').style.backgroundImage = `url('assets/backgrounds/terrain.jpg')`;
+      }
+    
+      // Apply title background if set
+      if (gameSettings.titleBgImage) {
+        document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
+      } else {
+        document.getElementById('introScreen').style.backgroundImage = `url('assets/backgrounds/title.jpg')`;
+      }
+      
+      localStorage.setItem('robotPollinatorSettings', JSON.stringify(gameSettings));
+      updateInstructions();
+      closeSettings();
+  }
 }
 
 // Handle file uploads
@@ -133,7 +137,7 @@ document.getElementById('bgImageUpload').addEventListener('change', function(e) 
   if (file) {
     const url = URL.createObjectURL(file);
     gameSettings.bgImage = url;
-    document.body.style.backgroundImage = `url(${url})`;
+    document.getElementById('gameCanvas').style.backgroundImage = `url(${url})`;
   }
 });
 
@@ -251,8 +255,7 @@ function endGame() {
 }
 
 function startNewGame() {
-    // Start game loop
-    gameLoop();
+    loadSettings();
     document.getElementById('bgMusic').currentTime = 0;
     score = 0;
     scoreElement.textContent = 'Score: 0';
@@ -271,7 +274,7 @@ const robot = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     size: 40,
-    speed: document.getElementById('gameSpeed').value,
+    speed: gameSettings.speed,
     direction: { x: 0, y: 0 }
 };
 
@@ -447,6 +450,7 @@ function startGame() {
   } catch (e) {
     console.log("Audio play failed:", e);
   }
+
   startNewGame();
 }
 
@@ -645,4 +649,6 @@ setInterval(() => {
 }, 16);
 
 loadSettings();
+// Start game loop
+gameLoop();
 updateInstructions();
