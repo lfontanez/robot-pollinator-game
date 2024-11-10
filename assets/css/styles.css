@@ -50,7 +50,7 @@
   }
   #gameCanvas {
     background: linear-gradient(#2a3442, #1a2432);
-    background-image: url('/assets/backgrounds/terrain.jpg');
+    background-image: url('../backgrounds/terrain.jpg');
     background-size: cover;
     overflow: hidden;
     margin-top: 100px;
@@ -116,7 +116,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.9);
     z-index: 100;
-    background-image: url('/assets/backgrounds/title.jpg');
+    background-image: url('../backgrounds/title.jpg');
     background-size: cover;
   }
   #menuButtons {
