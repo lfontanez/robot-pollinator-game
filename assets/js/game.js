@@ -605,7 +605,7 @@ if (gameActive && isMobile  === true) {
   }
 
 
-} else {
+} else if (gameActive) {
 
   // Follow mouse
   window.addEventListener('mousemove', (e) => {
@@ -626,7 +626,7 @@ if (gameActive && isMobile  === true) {
   });
 
   // Left click
-  window.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('mousedown', (e) => {
     if (e.button === 0 && currentPollenColor) { 
       document.getElementById('shootSound').play();
       const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
@@ -657,41 +657,41 @@ if (gameActive && isMobile  === true) {
     updatePollenDisplay();  
     }
   });
+
+  // Key Press Events
+  window.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyP' && gameActive) {
+          isPaused = !isPaused;
+          const pauseOverlay = document.getElementById('pauseOverlay');
+          pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+          
+          // Handle background music with promise
+          const bgMusic = document.getElementById('bgMusic');
+          if (isPaused) {
+              const playPromise = bgMusic.play();
+              if (playPromise !== undefined) {
+                  playPromise.then(() => {
+                      bgMusic.pause();
+                  }).catch(error => {
+                      console.log("Audio pause prevented:", error);
+                  });
+              }
+          } else {
+              try {
+                  bgMusic.play().catch(error => {
+                      console.log("Playback prevented:", error);
+                  });
+              } catch (e) {
+                  console.log("Audio play failed:", e);
+              }
+          }
+      }
+      if (e.code === 'KeyQ' && gameActive) {
+          showQuitOverlay();
+      }
+
+  });
 }
-// Key Press Events
-window.addEventListener('keydown', (e) => {
-    if (e.code === 'KeyP' && gameActive) {
-        isPaused = !isPaused;
-        const pauseOverlay = document.getElementById('pauseOverlay');
-        pauseOverlay.style.display = isPaused ? 'flex' : 'none';
-        
-        // Handle background music with promise
-        const bgMusic = document.getElementById('bgMusic');
-        if (isPaused) {
-            const playPromise = bgMusic.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    bgMusic.pause();
-                }).catch(error => {
-                    console.log("Audio pause prevented:", error);
-                });
-            }
-        } else {
-            try {
-                bgMusic.play().catch(error => {
-                    console.log("Playback prevented:", error);
-                });
-            } catch (e) {
-                console.log("Audio play failed:", e);
-            }
-        }
-    }
-    if (e.code === 'KeyQ' && gameActive) {
-        showQuitOverlay();
-    }
-
-});
-
 // Check for pollen collection approach
 setInterval(() => {
     if (!gameActive) return;
