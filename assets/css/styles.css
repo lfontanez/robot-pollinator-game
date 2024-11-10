@@ -129,7 +129,7 @@
   background-size: cover;
 }
 #menuButtons {
-  position: fixed;
+  position: relative;
   width: 60%;
   bottom: 50px;
   display: flex;
