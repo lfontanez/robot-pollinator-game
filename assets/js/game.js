@@ -67,8 +67,8 @@ let gameSettings = {
   pointsPerMatch: 100,
   penaltyPoints: 100,
   bgMusic: '',
-  bgImage: '',
-  titleBgImage: ''
+  bgImage: 'assets/backgrounds/terrain.jpg',
+  titleBgImage: 'assets/backgrounds/title.jpg'
 };
 
 // Load settings from localStorage
@@ -126,7 +126,8 @@ function saveSettings() {
         pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
         penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
         bgMusic: document.getElementById('bgMusic').src,
-        bgImage: gameSettings.bgImage // Preserve the current bgImage URL
+        bgImage: gameSettings.bgImage, // Preserve the current bgImage URL
+        titleBgImage: gameSettings.titleBgImage // Preserve the current bgImage URL
       };
     
       // Apply audio settings immediately
@@ -147,15 +148,11 @@ function saveSettings() {
       // Apply visual settings
       if (gameSettings.bgImage) {
         document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
-      } else {
-        document.getElementById('gameCanvas').style.backgroundImage = `url('../backgrounds/terrain.jpg')`;
       }
     
       // Apply title background if set
       if (gameSettings.titleBgImage) {
         document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
-      } else {
-        document.getElementById('introScreen').style.backgroundImage = `url('../backgrounds/title.jpg')`;
       }
       
       localStorage.setItem('robotPollinatorSettings', JSON.stringify(gameSettings));
