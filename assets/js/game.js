@@ -7,12 +7,38 @@
  * R1 Software - The soul is in the software
  * https://r1software.com
  */
+
+// Check if the user is on a mobile device
+function isMobileDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return (
+    /android/i.test(userAgent) ||
+    /webos/i.test(userAgent) ||
+    /iphone/i.test(userAgent) ||
+    /ipad/i.test(userAgent) ||
+    /ipod/i.test(userAgent) ||
+    /blackberry/i.test(userAgent) ||
+    /windows phone/i.test(userAgent)
+  );
+}
+
+// Usage example
+let isMobile = isMobileDevice();
+let gameMode = 'desktop';
+if (isMobile) {
+  console.log("You're on a mobile device!");
+  gameMode = 'mobile';
+} else {
+  console.log("You're on a desktop or laptop!");
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const currentColorElement = document.getElementById('currentColor');
 const timerElement = document.getElementById('timer');
 const gameOverElement = document.getElementById('gameOver');
+const gameModeSelect = document.getElementById('gameMode');
 
 // Set canvas size
 function resizeCanvas() {
@@ -30,9 +56,11 @@ const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D'];
 let currentPollenColor = null;
 let currentPollenColors = new Map(); // Map of color -> count
 let isMovingTowardsMouse = false;
+let collectInstructions = 'Press SPACEBAR near male flowers to collect their pollen';
 
 // Game settings with defaults
 let gameSettings = {
+  mode: '',
   speed: 3,
   duration: 90000,
   pointsToWin: 1000,
@@ -49,19 +77,28 @@ function loadSettings() {
   if (saved) {
     gameSettings = JSON.parse(saved);
   }  
-    // Update form values
-    if (!gameSettings.speed) gameSettings.speed = 3;
-    document.getElementById('gameSpeed').value = gameSettings.speed;
-    document.getElementById('gameDuration').value = gameSettings.duration / 1000;
-    const minutes = Math.floor(gameSettings.duration / 60000000);
-    const seconds = Math.floor((gameSettings.duration  % 60000000) / 1000);
-    timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-    document.getElementById('pointsToWin').value = gameSettings.pointsToWin;
-    document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
-    document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
-    if (gameSettings.bgImage) document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`; 
-    if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;   
-    updateInstructions(); // Update instructions when settings load
+  // Update form values
+  if (!gameSettings.mode) gameSettings.mode = gameMode;
+  if (gameSettings.mode == 'mobile') {
+    // Set the selected option to "Mobile"
+    gameModeSelect.value = 'mobile';
+  } else {
+    // Or, set the selected option to "Desktop"
+    gameModeSelect.value = 'desktop';
+  }
+
+  if (!gameSettings.speed) gameSettings.speed = 3;
+  document.getElementById('gameSpeed').value = gameSettings.speed;
+  document.getElementById('gameDuration').value = gameSettings.duration / 1000;
+  const minutes = Math.floor(gameSettings.duration / 60000000);
+  const seconds = Math.floor((gameSettings.duration  % 60000000) / 1000);
+  timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+  document.getElementById('pointsToWin').value = gameSettings.pointsToWin;
+  document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
+  document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
+  if (gameSettings.bgImage) document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`; 
+  if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;   
+  updateInstructions(); // Update instructions when settings load
 }
 
 function showSettings() {
@@ -82,6 +119,7 @@ function saveSettings() {
   if (form.checkValidity()) {
       // Get base game settings
       gameSettings = {
+        mode: document.getElementById('gameMode').value,
         speed: document.getElementById('gameSpeed').value,
         duration: document.getElementById('gameDuration').value * 1000,
         pointsToWin: parseInt(document.getElementById('pointsToWin').value),
@@ -96,6 +134,10 @@ function saveSettings() {
       const winSound = document.getElementById('winSound');
       const gameOverSound = document.getElementById('gameOverSound');
     
+      // Apply Game Mode
+      if (gameSettings.mode == 'desktop') isMobile = false;
+        else isMobile = true;
+
       // If new files were selected, their URLs would already be set via the change event handlers
       // Just make sure to apply any new background music right away
       if (bgMusic.src !== gameSettings.bgMusic) {
@@ -198,8 +240,10 @@ document.getElementById('loseSoundUpload').addEventListener('change', function(e
 
 // Update pollen display
 function updatePollenDisplay() {
-    if (currentPollenColors.size === 0) {
+
+    if (currentPollenColors.size == 0) {
         currentColorElement.textContent = 'Current Pollen: None';
+        currentPollenColors.clear();
     } else {
         currentColorElement.innerHTML = 'Current Pollen: ' + 
             Array.from(currentPollenColors.entries())
@@ -256,6 +300,7 @@ function endGame() {
 
 function startNewGame() {
     loadSettings();
+    if (isMobile === true) console.log('You\'re playing in ' + gameSettings.mode + ' mode!'); 
     document.getElementById('bgMusic').currentTime = 0;
     score = 0;
     scoreElement.textContent = 'Score: 0';
@@ -411,9 +456,12 @@ function drawRobot() {
 
 function updateInstructions() {
   const instructionsList = document.querySelector('#instructions ul');
+  if (isMobile === true) collectInstructions = 'Collide with male flowers to collect their pollen';
   instructionsList.innerHTML = `
+    <li>Press [P] to PAUSE / RESUME</li>
+    <li>Press [Q] to QUIT</li>
     <li>Move your robot pollinator by moving your mouse cursor - it will follow!</li>
-    <li>Press SPACEBAR near male flowers to collect their pollen</li>
+    <li>${collectInstructions}</li>
     <li>Left-click to shoot pollen at female flowers</li>
     <li>Right-click to switch between collected pollen colors</li>
     <li>Match the pollen color to the female flower color for +${gameSettings.pointsPerMatch} points</li>
@@ -539,38 +587,41 @@ window.addEventListener('contextmenu', (e) => {
         const colors = Array.from(currentPollenColors.keys());
         const currentIndex = colors.indexOf(currentPollenColor);
         currentPollenColor = colors[(currentIndex + 1) % colors.length];
+    }else{
+      currentPollenColors.clear();
     }
 });
 
 window.addEventListener('mousedown', (e) => {
-    if (e.button === 0 && currentPollenColor) { // Left click
-        document.getElementById('shootSound').play();
-        const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-        const speed = 10;
-        const count = currentPollenColors.get(currentPollenColor);
-        if (count > 0) {
-            pollenBalls.push(new PollenBall(
-                robot.x, robot.y,
-                Math.cos(angle) * speed,
-                Math.sin(angle) * speed,
-                currentPollenColor
-            ));
-            currentPollenColors.set(currentPollenColor, count - 1);
-            if (count === 1) {
-                const colors = Array.from(currentPollenColors.keys());
-                currentPollenColor = colors.length > 1 ? colors[0] : null;
-            }
-            if (currentPollenColors.get(currentPollenColor) === 0) {
-                currentPollenColors.delete(currentPollenColor);
-                if (currentPollenColors.size > 0) {
-                    currentPollenColor = Array.from(currentPollenColors.keys())[0];
-                } else {
-                    currentPollenColor = null;
-                }
-            }
-            updatePollenDisplay();
+  if (e.button === 0 && currentPollenColor) { // Left click
+    document.getElementById('shootSound').play();
+    const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+    const speed = 10;
+    const count = currentPollenColors.get(currentPollenColor);
+    if (count > 0) {
+        pollenBalls.push(new PollenBall(
+            robot.x, robot.y,
+            Math.cos(angle) * speed,
+            Math.sin(angle) * speed,
+            currentPollenColor
+        ));
+        currentPollenColors.set(currentPollenColor, count - 1);
+        if (count === 1) {
+            currentPollenColors.delete(currentPollenColor);
+            const colors = Array.from(currentPollenColors.keys());
+            currentPollenColor = colors.length > 1 ? colors[0] : null;
         }
-    }
+        if (currentPollenColors.get(currentPollenColor) == 0) {
+            currentPollenColors.delete(currentPollenColor);
+            if (currentPollenColors.size > 0) {
+                currentPollenColor = Array.from(currentPollenColors.keys())[0];
+            } else {
+                currentPollenColor = null;
+            }
+        } 
+    }       
+  updatePollenDisplay();  
+  }
 });
 
 window.addEventListener('keydown', (e) => {
@@ -603,7 +654,7 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyQ' && gameActive) {
         showQuitOverlay();
     }
-    if (e.code === 'Space') {
+    if (isMobile === false && e.code === 'Space') {
         const nearbyMaleFlowers = flowers.filter(f => 
             f.type === 'male' &&
             Math.hypot(f.x - robot.x, f.y - robot.y) < 50
@@ -646,6 +697,28 @@ setInterval(() => {
             }
         });
     });
+
+    if (isMobile  === true) {
+      // Check for collisions with male flowers
+      const nearbyMaleFlowers = flowers.filter(f =>
+          f.type === 'male' &&
+          Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
+      );
+
+      if (nearbyMaleFlowers.length > 0) {
+          document.getElementById('pollenCollectSound').play();
+          // Get just the first flower and collect 1 pollen
+          const flower = nearbyMaleFlowers[0];
+          const count = currentPollenColors.get(flower.color) || 0;
+          currentPollenColors.set(flower.color, count + 1);
+          if (!currentPollenColor) currentPollenColor = flower.color;
+
+          // Remove the collected flower
+          flowers = flowers.filter(f => f !== flower);
+
+          updatePollenDisplay();
+      }
+    }
 }, 16);
 
 loadSettings();
