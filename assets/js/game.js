@@ -35,6 +35,9 @@ const scoreElement = document.getElementById('score');
 const currentColorElement = document.getElementById('currentColor');
 const timerElement = document.getElementById('timer');
 const gameOverElement = document.getElementById('gameOver');
+const swapButtons = document.getElementById('swapButtons');
+const set1 = document.getElementById('set1');
+const set2 = document.getElementById('set2');
 
 // Set canvas size
 function resizeCanvas() {
@@ -61,6 +64,7 @@ let gameSettings = {
   pointsToWin: 1000,
   pointsPerMatch: 100,
   penaltyPoints: 100,
+  buttons: 'right',
   bgImage: '',
   titleBgImage: '',
   bgMusic: '',
@@ -106,7 +110,14 @@ function loadSettings() {
   if (gameSettings.bgMusic) document.getElementById('bgMusic').src = gameSettings.bgMusic;
   if (gameSettings.winSound) document.getElementById('winSound').src= gameSettings.winSound;
   if (gameSettings.gameOverSound) document.getElementById('gameOverSound').src = gameSettings.gameOverSound;
-
+  if (gameSettings.buttons) swapButtons.value = gameSettings.buttons;
+  if (gameSettings.buttons == 'left') {
+    set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+    set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
+  } else {
+    set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+    set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"><i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
+  } 
   // Update instructions when settings load
   updateInstructions(); 
 }
@@ -123,6 +134,7 @@ function saveSettings() {
         pointsToWin: parseInt(document.getElementById('pointsToWin').value),
         pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
         penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
+        buttons: swapButtons.value,
         bgMusic: document.getElementById('bgMusic').src,
         winSound: document.getElementById('winSound').src,
         gameOverSound: document.getElementById('gameOverSound').src,
@@ -140,6 +152,15 @@ function saveSettings() {
         document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
       }
 
+      // Apply button position
+      if (swapButtons.value == 'left') {
+        set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+        set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+      } else {
+        set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"><i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
+        set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+      } 
+         
       // Apply audio settings immediately
       const bgMusic = document.getElementById('bgMusic');
       const winSound = document.getElementById('winSound');

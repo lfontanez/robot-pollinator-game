@@ -56,6 +56,13 @@
         Penalty Points:
         <input type="number" id="penaltyPoints" min="0" max="500" value="100" required>
       </label>
+      <label for="swapButtons">
+        Action Buttons:
+        <select id="swapButtons">
+          <option value="right">Right</option>
+          <option value="left">Left</option>
+        </select>
+      </label>
     </div>
 
     <div id="audioSettings" class="tab-content">
@@ -157,10 +164,10 @@
 <!-- Game Controls -->
 <div id="gameControls">
   <div class="icon-container">
-    <div class="left-controls">
+    <div id="set1" class="left-controls">
       <i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>
     </div>
-    <div class="right-controls">
+    <div id="set2" class="right-controls">
       <i class="fas fa-recycle switch-icon icon" id="switchIcon"></i><i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>
     </div>
   </div>
