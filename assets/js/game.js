@@ -461,12 +461,12 @@ function updateInstructions() {
 
   if (isMobile === true) {
     instructionsList.innerHTML = `
-    <li>Press [P] to PAUSE / RESUME</li>
-    <li>Press [Q] to QUIT</li>
-    <li>Move your robot pollinator by moving your mouse cursor - it will follow!</li>
+    <li><i class="fas fa-pause"></i> to PAUSE,  <i class="fas fa-play"></i> RESUME</li>
+    <li><i class="fas fa-sign-out-alt exit-icon"></i> to QUIT</li>
+    <li>Move your robot pollinator by tapping screen - it will follow!</li>
     <li>${collectInstructions}</li>
-    <li>Tap icon to shoot pollen at female flowers</li>
-    <li>Tap icon to switch between collected pollen colors</li>
+    <li><i class="fas fa-fire"></i> to shoot pollen at female flowers</li>
+    <li><i class="fas fa-recycle switch-icon"></i> to switch between collected pollen colors</li>
     <li>Match pollen color to female flower color for +${gameSettings.pointsPerMatch} points</li>
     <li>Wrong color match will subtract ${gameSettings.penaltyPoints} points</li>
     <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration/1000} seconds to win!</li>
