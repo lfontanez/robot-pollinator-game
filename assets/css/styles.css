@@ -12,8 +12,6 @@
   overflow: hidden;
   background: #1a2432;
   font-family: Arial, sans-serif;
-  cursor: crosshair;
-  overscroll-behavior: none;
 }
 #quitOverlay {
   position: fixed;
