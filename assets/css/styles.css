@@ -53,7 +53,9 @@
     background-image: url('../backgrounds/terrain.jpg');
     background-size: cover;
     overflow: hidden;
+    background-position: center;
     margin-top: 100px;
+    margin-bottom: 50px;
   }
   #score {
     position: fixed;
@@ -113,7 +115,7 @@
     width: 100%;
     max-width: 479px;
     max-height: 180px;
-    margin: 10px 0 0;
+    margin: 10px auto;
   }
   #introScreen {
     position: fixed;

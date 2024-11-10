@@ -585,27 +585,26 @@ function gameLoop() {
 }
 
 // Event listeners
-if (gameActive && isMobile  === true) {
+if (isMobile === true) {
 
   // Add event listeners for touch events
-  canvas.addEventListener('touchstart', handleTouchStart, false);
-  canvas.addEventListener('touchend', handleTouchEnd, false);
+  window.addEventListener('touchstart', handleTouchStart, false);
+  window.addEventListener('touchend', handleTouchEnd, false);
 
-  function handleTouchStart(event) {
-    
+  function handleTouchStart(e) {
+    console.log('Touch start');
     // Get the touch point coordinates
-    touch = event.touches[0]; // Get the first touch point
+    touch = e.touches[0]; // Get the first touch point
   }
 
-  function handleTouchEnd(event) {
-    event.preventDefault();
+  function handleTouchEnd(e) {
+    console.log('Touch End');
     // Follow tap
     mouseX = touch.clientX;
     mouseY = touch.clientY - canvasMargin;
   }
 
-
-} else if (gameActive) {
+} else {
 
   // Follow mouse
   window.addEventListener('mousemove', (e) => {
@@ -626,7 +625,7 @@ if (gameActive && isMobile  === true) {
   });
 
   // Left click
-  canvas.addEventListener('mousedown', (e) => {
+  window.addEventListener('mousedown', (e) => {
     if (e.button === 0 && currentPollenColor) { 
       document.getElementById('shootSound').play();
       const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
@@ -657,7 +656,7 @@ if (gameActive && isMobile  === true) {
     updatePollenDisplay();  
     }
   });
-
+}
   // Key Press Events
   window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyP' && gameActive) {
@@ -691,7 +690,7 @@ if (gameActive && isMobile  === true) {
       }
 
   });
-}
+
 // Check for pollen collection approach
 setInterval(() => {
     if (!gameActive) return;
