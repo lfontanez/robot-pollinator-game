@@ -282,7 +282,7 @@ function updateTimer() {
 }
 
 function endGame() {
-    gameControls.style.display = 'hidden';
+    gameControls.style.display = 'none';
     gameActive = false;
     gameOverElement.style.display = 'block';
     const finalMessage = document.getElementById('finalMessage');
