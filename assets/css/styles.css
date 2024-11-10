@@ -108,6 +108,13 @@
     font-size: 18px;
     cursor: pointer;
   }
+  #title {
+    display: block;
+    width: 100%;
+    max-width: 479px;
+    max-height: 180px;
+    margin: 10px 0 0;
+  }
   #introScreen {
     position: fixed;
     top: 0;
@@ -277,3 +284,13 @@
     font-size: 24px;
     margin-bottom: 10px;
   }
+
+  /* Media query for small screens */
+@media (max-width: 480px) {
+  #introScreen {
+    background-image: url('../backgrounds/title2.jpg');
+  }
+  #gameCanvas {
+    background-image: url('../backgrounds/terrain2.jpg');
+  }
+}

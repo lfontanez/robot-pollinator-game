@@ -22,9 +22,16 @@ function isMobileDevice() {
   );
 }
 
-// Usage example
 let isMobile = isMobileDevice();
 let gameMode = 'desktop';
+let bg = '';
+let title = '';
+
+// Mouse position tracking
+let mouseX = 0;
+let mouseY = 0;
+let touch;
+
 if (isMobile) {
   console.log("You're on a mobile device!");
   gameMode = 'mobile';
@@ -67,8 +74,8 @@ let gameSettings = {
   pointsPerMatch: 100,
   penaltyPoints: 100,
   bgMusic: '',
-  bgImage: 'assets/backgrounds/terrain.jpg',
-  titleBgImage: 'assets/backgrounds/title.jpg'
+  bgImage: bg,
+  titleBgImage: title
 };
 
 // Load settings from localStorage
@@ -385,14 +392,6 @@ class PollenBall {
     }
 }
 
-// Add mouse position tracking
-let mouseX = 0;
-let mouseY = 0;
-
-window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY - 100;
-});
 
 // Update robot drawing to show quadcopter appearance and current color
 function drawRobot() {
@@ -578,49 +577,163 @@ function gameLoop() {
 }
 
 // Event listeners
-window.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
+if (gameActive && isMobile  === true) {
+
+  let tapCount = 0; // Variable to keep track of tap count
+  let lastTapTime = 0; // Variable to store the timestamp of the last tap
+  let longPressTimer = null; // Timer for long press
+  let longPressDelay = 1000; // Delay in milliseconds for long press
+  let preventLongPress = false; // Flag to prevent long press default behavior
+  const doubleTapDelay = 100; // Maximum time delay (in milliseconds) between two taps to be considered a double tap
+
+  // Add event listeners for touch events
+  document.addEventListener('touchstart', handleTouchStart, false);
+  document.addEventListener('touchend', handleTouchEnd, false);
+
+  function handleTouchStart(event) {
+    if (preventLongPress) {
+      event.preventDefault();
+    }
+    // Get the touch point coordinates
+    touch = event.touches[0]; // Get the first touch point
+
+    lastTapTime = new Date().getTime(); // Update the last tap timestamp
+
+    // Start the long press timer
+    longPressTimer = setTimeout(handleLongPress, longPressDelay);
+  }
+
+  function handleTouchEnd(event) {
+    if (preventLongPress) {
+      event.preventDefault();
+    }
+    // Clear the long press timer if a long press didn't occur
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+
+    const currentTime = new Date().getTime();
+    const tapDelay = currentTime - lastTapTime;
+
+    // Check if the tap delay is within the double tap delay threshold
+    if (tapDelay < doubleTapDelay) {
+      tapCount++;
+    } else {
+      tapCount = 1; // Reset the tap count for a new single tap
+    }
+
+    // Handle single tap and double tap events
+    if (tapCount === 1) {
+      // Single tap event
+      console.log('Single tap detected');
+      // Add your single tap logic here
+      mouseX = touch.clientX;
+      mouseY = touch.clientY - 100;
+    } else if (tapCount === 2) {
+      // Double tap event
+      console.log('Double tap detected');
+      // Add your double tap logic here
+      if (currentPollenColor) { 
+        document.getElementById('shootSound').play();
+        const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+        const speed = 10;
+        const count = currentPollenColors.get(currentPollenColor);
+        if (count > 0) {
+            pollenBalls.push(new PollenBall(
+                robot.x, robot.y,
+                Math.cos(angle) * speed,
+                Math.sin(angle) * speed,
+                currentPollenColor
+            ));
+            currentPollenColors.set(currentPollenColor, count - 1);
+            if (count === 1) {
+                currentPollenColors.delete(currentPollenColor);
+                const colors = Array.from(currentPollenColors.keys());
+                currentPollenColor = colors.length > 1 ? colors[0] : null;
+            }
+            if (currentPollenColors.get(currentPollenColor) == 0) {
+                currentPollenColors.delete(currentPollenColor);
+                if (currentPollenColors.size > 0) {
+                    currentPollenColor = Array.from(currentPollenColors.keys())[0];
+                } else {
+                    currentPollenColor = null;
+                }
+            } 
+        }       
+      updatePollenDisplay();  
+      }
+      tapCount = 0; // Reset the tap count
+      // Reset the preventLongPress flag
+      preventLongPress = false;
+    }
+  }
+
+  function handleLongPress() {
+    // Set the preventLongPress flag to true
+    preventLongPress = true;
+    // Handle long press event
+    console.log('Long press detected');
+    // Add your long press logic here
     if (currentPollenColors.size > 0) {
-        const colors = Array.from(currentPollenColors.keys());
-        const currentIndex = colors.indexOf(currentPollenColor);
-        currentPollenColor = colors[(currentIndex + 1) % colors.length];
+      const colors = Array.from(currentPollenColors.keys());
+      const currentIndex = colors.indexOf(currentPollenColor);
+      currentPollenColor = colors[(currentIndex + 1) % colors.length];
     }else{
       currentPollenColors.clear();
-    }
-});
-
-window.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && currentPollenColor) { // Left click
-    document.getElementById('shootSound').play();
-    const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-    const speed = 10;
-    const count = currentPollenColors.get(currentPollenColor);
-    if (count > 0) {
-        pollenBalls.push(new PollenBall(
-            robot.x, robot.y,
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            currentPollenColor
-        ));
-        currentPollenColors.set(currentPollenColor, count - 1);
-        if (count === 1) {
-            currentPollenColors.delete(currentPollenColor);
-            const colors = Array.from(currentPollenColors.keys());
-            currentPollenColor = colors.length > 1 ? colors[0] : null;
-        }
-        if (currentPollenColors.get(currentPollenColor) == 0) {
-            currentPollenColors.delete(currentPollenColor);
-            if (currentPollenColors.size > 0) {
-                currentPollenColor = Array.from(currentPollenColors.keys())[0];
-            } else {
-                currentPollenColor = null;
-            }
-        } 
-    }       
-  updatePollenDisplay();  
+    }  
+    // Clear the long press timer
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
   }
-});
 
+} else {
+  window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY - 100;
+  });
+
+  window.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (currentPollenColors.size > 0) {
+          const colors = Array.from(currentPollenColors.keys());
+          const currentIndex = colors.indexOf(currentPollenColor);
+          currentPollenColor = colors[(currentIndex + 1) % colors.length];
+      }else{
+        currentPollenColors.clear();
+      }
+  });
+
+  window.addEventListener('mousedown', (e) => {
+    if (e.button === 0 && currentPollenColor) { // Left click
+      document.getElementById('shootSound').play();
+      const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+      const speed = 10;
+      const count = currentPollenColors.get(currentPollenColor);
+      if (count > 0) {
+          pollenBalls.push(new PollenBall(
+              robot.x, robot.y,
+              Math.cos(angle) * speed,
+              Math.sin(angle) * speed,
+              currentPollenColor
+          ));
+          currentPollenColors.set(currentPollenColor, count - 1);
+          if (count === 1) {
+              currentPollenColors.delete(currentPollenColor);
+              const colors = Array.from(currentPollenColors.keys());
+              currentPollenColor = colors.length > 1 ? colors[0] : null;
+          }
+          if (currentPollenColors.get(currentPollenColor) == 0) {
+              currentPollenColors.delete(currentPollenColor);
+              if (currentPollenColors.size > 0) {
+                  currentPollenColor = Array.from(currentPollenColors.keys())[0];
+              } else {
+                  currentPollenColor = null;
+              }
+          } 
+      }       
+    updatePollenDisplay();  
+    }
+  });
+}
 window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyP' && gameActive) {
         isPaused = !isPaused;
@@ -718,6 +831,27 @@ setInterval(() => {
     }
 }, 16);
 
+// Function to get the screen width
+function getScreenWidth() {
+  return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+}
+
+// Function to set the background image
+function setBackgroundImage() {
+  const screenWidth = getScreenWidth();
+  const body = document.body;
+
+  if (screenWidth <= 480) {
+    // Small screen, use mobile background image
+    bg = 'assets/backgrounds/terrain2.jpg';
+    title = 'assets/backgrounds/title2.jpg';
+  } else {
+    // Large screen, use desktop background image
+    bg = 'assets/backgrounds/terrain.jpg';
+    title = 'assets/backgrounds/titile2.jpg';
+  }
+}
+setBackgroundImage();
 loadSettings();
 // Start game loop
 gameLoop();
