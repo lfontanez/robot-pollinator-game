@@ -12,6 +12,7 @@ let canvasMargin = 80;
 let pauseStart;
 let pausedTime = 0;
 let pointerCorrection = 80;
+
 // Mouse position tracking
 let mouseX = 0;
 let mouseY = 0;
@@ -19,13 +20,6 @@ let touch;
 
 // Check if the user is on a mobile device
 const isMobile = isMobileDevice();
-
-if (isMobile) {
-  console.log("You're on a mobile device!");
-  canvasMargin = 150;
-} else {
-  console.log("You're on a desktop or laptop!");
-}
 
 // Elements
 const canvas = document.getElementById('gameCanvas');
@@ -38,6 +32,14 @@ const gameOverElement = document.getElementById('gameOver');
 const swapButtons = document.getElementById('swapButtons');
 const set1 = document.getElementById('set1');
 const set2 = document.getElementById('set2');
+
+if (isMobile) {
+  console.log("You're on a mobile device!");
+  canvasMargin = 150;
+} else {
+  swapButtons.style.display = 'none'
+  console.log("You're on a desktop or laptop!");
+}
 
 // Set canvas size
 function resizeCanvas() {
@@ -115,9 +117,11 @@ function loadSettings() {
   if (isMobile) {
     if (!gameSettings.buttons) {
       gameSettings.buttons = 'right';
+      swapButtons.selectedIndex = 0;
     } else if (gameSettings.buttons == 'left') {
-        set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
-        set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
+      swapButtons.selectedIndex = 1;
+      set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+      set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
     }
     bindMobile();
   }
@@ -129,10 +133,10 @@ function loadSettings() {
 // Save Settings
 function saveSettings() {
   form = document.getElementById('settings');
-  
+
   if (form.checkValidity()) {
       // Get base game settings
-      gameSettings = {
+      let newGameSettings = {
         speed: document.getElementById('gameSpeed').value,
         duration: document.getElementById('gameDuration').value * 1000,
         pointsToWin: parseInt(document.getElementById('pointsToWin').value),
@@ -158,13 +162,13 @@ function saveSettings() {
 
       // Apply button position
       if (isMobile) {
-        if (swapButtons.value  == 'left') {
+        if (newGameSettings.buttons == 'left') {
           set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
           set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
         } else {
           set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"></i><<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
           set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-        } 
+        }    
       }  
       // Apply audio settings immediately
       const bgMusic = document.getElementById('bgMusic');
@@ -173,18 +177,18 @@ function saveSettings() {
     
       // If new files were selected, their URLs would already be set via the change event handlers
       // Just make sure to apply any new background music right away
-      if (bgMusic.src !== gameSettings.bgMusic) {
-        bgMusic.src = gameSettings.bgMusic;
+      if (bgMusic.src !== newGameSettings.bgMusic) {
+        bgMusic.src = newGameSettings.bgMusic;
       }
-      if (winSound.src !== gameSettings.winSound) {
-        winSound.src = gameSettings.winSound;
+      if (winSound.src !== newGameSettings.winSound) {
+        winSound.src = newGgameSettings.winSound;
       }
       if (gameOverSound.src !== gameSettings.gameOverSound) {
-        gameOverSound.src = gameSettings.gameOverSound;
+        gameOverSound.src = newGameSettings.gameOverSound;
       }
       
       // Update local storage
-      localStorage.setItem('robotPollinatorSettings', JSON.stringify(gameSettings));
+      localStorage.setItem('robotPollinatorSettings', JSON.stringify(newGameSettings));
 
       // Update Instructions
       updateInstructions();
