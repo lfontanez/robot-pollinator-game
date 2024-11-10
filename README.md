@@ -7,12 +7,8 @@ It was inspired by an (extremely cool! ) Arduino hardware project designed by my
 
 ## How to Play
 
-1. **Move the Robot Pollinator:** Move your mouse cursor to control the robot pollinator. It will follow your cursor's movements.
-2. **Collect Pollen:** Press the spacebar when near male flowers to collect their pollen.
-3. **Pollinate Female Flowers:** Left-click to shoot the collected pollen at female flowers.
-4. **Switch Pollen Colors:** Right-click to switch between the collected pollen colors.
-5. **Score Points:** Match the pollen color to the female flower color to earn 100 points. Wrong color matches will deduct 100 points.
-6. **Win Condition:** Reach 1000 points within 3 minutes to win the game.
+1. **Score Points:** Match the pollen color to the female flower color to earn 100 points. Wrong color matches will deduct 100 points.
+2. **Win Condition:** Reach 1000 points within 3 minutes to win the game.
 
 ## Game Settings
 
@@ -23,6 +19,7 @@ The game offers various settings to customize the gameplay experience:
 - **Points to Win:** Adjust the target score required to win the game.
 - **Points per Match:** Change the number of points awarded for a correct pollen match.
 - **Penalty Points:** Set the number of points deducted for an incorrect pollen match.
+- **Action Buttons:** (Mobile only) Set the Fire/Switch buttons left/right hand play.
 - **Background Music:** Change the background music during gameplay.
 - **Win Sound:** Change the sound effect played upon winning the game.
 - **Game Over Sound:** Change the sound effect played when the game is over.
@@ -31,12 +28,21 @@ The game offers various settings to customize the gameplay experience:
 
 ## Controls
 
-- **Move Robot Pollinator:** Move the mouse cursor, and aim the canon.
-- **Collect Pollen:** Press the spacebar.
-- **Shoot Pollen:** Left-click.
-- **Switch Pollen Colors:** Right-click.
+On Desktop:
 - **Pause/Resume Game:** Press 'P'.
 - **Quit Game:** Press 'Q', then click 'YES/NO' on the confirmation prompt.
+- **Move Robot Pollinator:** Move the mouse cursor, and aim the canon.
+- **Collect Pollen:** Approach male flowers.
+- **Shoot Pollen:** Mouse Left-click.
+- **Switch Pollen Colors:** Mouse Right-click.
+
+On Mobile:
+- **Pause/Resume Game:** Tap the PAUSE icon, resume with the Play icon
+- **Quit Game:** Tap EXIT icon, then click 'YES/NO' on the confirmation prompt.
+- **Move Robot Pollinator:** Tap on the game area to move and aim the canon.
+- **Collect Pollen:** Approach male flowers.
+- **Shoot Pollen:** Tap the FIRE icon.
+- **Switch Pollen Colors:** Tap the SWITCH icon.
 
 ## Getting Started
 
