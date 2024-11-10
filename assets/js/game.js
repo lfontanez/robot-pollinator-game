@@ -592,16 +592,16 @@ if (gameActive && isMobile  === true) {
   canvas.addEventListener('touchend', handleTouchEnd, false);
 
   function handleTouchStart(event) {
-    event.preventDefault();
+    
     // Get the touch point coordinates
     touch = event.touches[0]; // Get the first touch point
   }
 
   function handleTouchEnd(event) {
-
-      // Follow tap
-      mouseX = touch.clientX;
-      mouseY = touch.clientY - canvasMargin;
+    event.preventDefault();
+    // Follow tap
+    mouseX = touch.clientX;
+    mouseY = touch.clientY - canvasMargin;
   }
 
 
