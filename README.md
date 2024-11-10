@@ -8,7 +8,7 @@ It was inspired by an (extremely cool! ) Arduino hardware project designed by my
 ## How to Play
 
 1. **Score Points:** Match the pollen color to the female flower color to earn 100 points. Wrong color matches will deduct 100 points.
-2. **Win Condition:** Reach 1000 points within 3 minutes to win the game.
+2. **Win Condition:** Reach 1000 points within 90 seconds to win the game.
 
 ## Game Settings
 
