@@ -8,51 +8,39 @@
  * https://r1software.com
  */
 
-// Check if the user is on a mobile device
-function isMobileDevice() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return (
-    /android/i.test(userAgent) ||
-    /webos/i.test(userAgent) ||
-    /iphone/i.test(userAgent) ||
-    /ipad/i.test(userAgent) ||
-    /ipod/i.test(userAgent) ||
-    /blackberry/i.test(userAgent) ||
-    /windows phone/i.test(userAgent)
-  );
-}
-
-let isMobile = isMobileDevice();
-let gameMode = 'desktop';
-let bg = '';
-let title = '';
+let canvasMargin = 100;
 
 // Mouse position tracking
 let mouseX = 0;
 let mouseY = 0;
 let touch;
 
+// Check if the user is on a mobile device
+const isMobile = isMobileDevice();
+
 if (isMobile) {
   console.log("You're on a mobile device!");
-  gameMode = 'mobile';
+  canvasMargin = 150;
 } else {
   console.log("You're on a desktop or laptop!");
 }
 
+// Elements
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const currentColorElement = document.getElementById('currentColor');
 const timerElement = document.getElementById('timer');
 const gameOverElement = document.getElementById('gameOver');
-const gameModeSelect = document.getElementById('gameMode');
 
 // Set canvas size
 function resizeCanvas() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 100;
+    canvas.height = window.innerHeight - canvasMargin;
 }
 resizeCanvas();
+
+// Auto resize game canvas
 window.addEventListener('resize', resizeCanvas);
 
 // Game state
@@ -63,20 +51,37 @@ const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D'];
 let currentPollenColor = null;
 let currentPollenColors = new Map(); // Map of color -> count
 let isMovingTowardsMouse = false;
-let collectInstructions = 'Press SPACEBAR near male flowers to collect their pollen';
 
 // Game settings with defaults
 let gameSettings = {
-  mode: '',
   speed: 3,
   duration: 90000,
   pointsToWin: 1000,
   pointsPerMatch: 100,
   penaltyPoints: 100,
+  bgImage: '',
+  titleBgImage: '',
   bgMusic: '',
-  bgImage: bg,
-  titleBgImage: title
+  winSound: '',
+  gameOverSound: ''
 };
+
+// Timer management
+let gameStartTime = Date.now();
+
+// Show Settings
+function showSettings() {
+  document.getElementById('settingsScreen').style.display = 'flex';
+  document.getElementById('introScreen').style.display = 'none';
+  loadSettings();
+}
+
+// Close Settings
+function closeSettings() {
+  loadSettings();
+  document.getElementById('settingsScreen').style.display = 'none';
+  document.getElementById('introScreen').style.display = 'flex';
+}
 
 // Load settings from localStorage
 function loadSettings() {
@@ -85,15 +90,6 @@ function loadSettings() {
     gameSettings = JSON.parse(saved);
   }  
   // Update form values
-  if (!gameSettings.mode) gameSettings.mode = gameMode;
-  if (gameSettings.mode == 'mobile') {
-    // Set the selected option to "Mobile"
-    gameModeSelect.value = 'mobile';
-  } else {
-    // Or, set the selected option to "Desktop"
-    gameModeSelect.value = 'desktop';
-  }
-
   if (!gameSettings.speed) gameSettings.speed = 3;
   document.getElementById('gameSpeed').value = gameSettings.speed;
   document.getElementById('gameDuration').value = gameSettings.duration / 1000;
@@ -104,54 +100,34 @@ function loadSettings() {
   document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
   document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
   if (gameSettings.bgImage) document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`; 
-  if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;   
-  updateInstructions(); // Update instructions when settings load
+  if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;
+  if (gameSettings.bgMusic) document.getElementById('bgMusic').src = gameSettings.bgMusic;
+  if (gameSettings.winSound) document.getElementById('winSound').src= gameSettings.winSound;
+  if (gameSettings.gameOverSound) document.getElementById('gameOverSound').src = gameSettings.gameOverSound;
+
+  // Update instructions when settings load
+  updateInstructions(); 
 }
 
-function showSettings() {
-  document.getElementById('settingsScreen').style.display = 'flex';
-  document.getElementById('introScreen').style.display = 'none';
-  loadSettings();
-}
-
-function closeSettings() {
-  loadSettings();
-  document.getElementById('settingsScreen').style.display = 'none';
-  document.getElementById('introScreen').style.display = 'flex';
-}
-
+// Save Settings
 function saveSettings() {
   form = document.getElementById('settings');
   
   if (form.checkValidity()) {
       // Get base game settings
       gameSettings = {
-        mode: document.getElementById('gameMode').value,
         speed: document.getElementById('gameSpeed').value,
         duration: document.getElementById('gameDuration').value * 1000,
         pointsToWin: parseInt(document.getElementById('pointsToWin').value),
         pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
         penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
         bgMusic: document.getElementById('bgMusic').src,
+        winSound: document.getElementById('winSound').src,
+        gameOverSound: document.getElementById('gameOverSound').src,
         bgImage: gameSettings.bgImage, // Preserve the current bgImage URL
         titleBgImage: gameSettings.titleBgImage // Preserve the current bgImage URL
       };
-    
-      // Apply audio settings immediately
-      const bgMusic = document.getElementById('bgMusic');
-      const winSound = document.getElementById('winSound');
-      const gameOverSound = document.getElementById('gameOverSound');
-    
-      // Apply Game Mode
-      if (gameSettings.mode == 'desktop') isMobile = false;
-        else isMobile = true;
-
-      // If new files were selected, their URLs would already be set via the change event handlers
-      // Just make sure to apply any new background music right away
-      if (bgMusic.src !== gameSettings.bgMusic) {
-        bgMusic.src = gameSettings.bgMusic;
-      }
-    
+ 
       // Apply visual settings
       if (gameSettings.bgImage) {
         document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
@@ -161,23 +137,36 @@ function saveSettings() {
       if (gameSettings.titleBgImage) {
         document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
       }
+
+      // Apply audio settings immediately
+      const bgMusic = document.getElementById('bgMusic');
+      const winSound = document.getElementById('winSound');
+      const gameOverSound = document.getElementById('gameOverSound');
+    
+      // If new files were selected, their URLs would already be set via the change event handlers
+      // Just make sure to apply any new background music right away
+      if (bgMusic.src !== gameSettings.bgMusic) {
+        bgMusic.src = gameSettings.bgMusic;
+      }
+      if (winSound.src !== gameSettings.winSound) {
+        winSound.src = gameSettings.winSound;
+      }
+      if (gameOverSound.src !== gameSettings.gameOverSound) {
+        gameOverSound.src = gameSettings.gameOverSound;
+      }
       
+      // Update local storage
       localStorage.setItem('robotPollinatorSettings', JSON.stringify(gameSettings));
+
+      // Update Instructions
       updateInstructions();
+
+      // Close Overlay
       closeSettings();
   }
 }
 
 // Handle file uploads
-document.getElementById('bgMusicUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    gameSettings.bgMusic = url;
-    document.getElementById('bgMusic').src = url;
-  }
-});
-
 document.getElementById('bgImageUpload').addEventListener('change', function(e) {
   const file = e.target.files[0];
   if (file) {
@@ -196,18 +185,46 @@ document.getElementById('titleBgImageUpload').addEventListener('change', functio
   }
 });
 
+document.getElementById('bgMusicUpload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    gameSettings.bgMusic = url;
+    document.getElementById('bgMusic').src = url;
+  }
+});
+
+document.getElementById('winSoundUpload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    document.getElementById('winSound').src = url;
+  }
+});
+
+document.getElementById('loseSoundUpload').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    document.getElementById('gameOverSound').src = url;
+  }
+});
+
+// Show Quit
 function showQuitOverlay() {
   document.getElementById('quitOverlay').style.display = 'flex';
   isPaused = true;
   document.getElementById('bgMusic').pause();
 }
 
+// Hide Quit
 function hideQuitOverlay() {
   document.getElementById('quitOverlay').style.display = 'none';
   isPaused = false;
   if (gameActive) document.getElementById('bgMusic').play();
 }
 
+// Quit
 function quitToTitle() {
   hideQuitOverlay();
   gameActive = false;
@@ -226,22 +243,6 @@ function quitToTitle() {
   }
 }
 
-document.getElementById('winSoundUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    document.getElementById('winSound').src = url;
-  }
-});
-
-document.getElementById('loseSoundUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    document.getElementById('gameOverSound').src = url;
-  }
-});
-
 // Update pollen display
 function updatePollenDisplay() {
 
@@ -256,11 +257,6 @@ function updatePollenDisplay() {
                 .join(' ');
     }
 }
-
-// Timer management
-let gameStartTime = Date.now();
-
-const GAME_DURATION = gameSettings.duration; // Use custom settings
 
 function updateTimer() {
     if (!gameActive) return;
@@ -304,7 +300,6 @@ function endGame() {
 
 function startNewGame() {
     loadSettings();
-    if (isMobile === true) console.log('You\'re playing in ' + gameSettings.mode + ' mode!'); 
     document.getElementById('bgMusic').currentTime = 0;
     score = 0;
     scoreElement.textContent = 'Score: 0';
@@ -452,7 +447,21 @@ function drawRobot() {
 
 function updateInstructions() {
   const instructionsList = document.querySelector('#instructions ul');
-  if (isMobile === true) collectInstructions = 'Collide with male flowers to collect their pollen';
+  let collectInstructions = 'Aproach male flowers to collect their pollen';
+
+  if (isMobile === true) {
+    instructionsList.innerHTML = `
+    <li>Press [P] to PAUSE / RESUME</li>
+    <li>Press [Q] to QUIT</li>
+    <li>Move your robot pollinator by moving your mouse cursor - it will follow!</li>
+    <li>${collectInstructions}</li>
+    <li>Tap icon to shoot pollen at female flowers</li>
+    <li>Tap icon to switch between collected pollen colors</li>
+    <li>Match pollen color to female flower color for +${gameSettings.pointsPerMatch} points</li>
+    <li>Wrong color match will subtract ${gameSettings.penaltyPoints} points</li>
+    <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration/1000} seconds to win!</li>
+  `;
+  } else {
   instructionsList.innerHTML = `
     <li>Press [P] to PAUSE / RESUME</li>
     <li>Press [Q] to QUIT</li>
@@ -460,12 +469,11 @@ function updateInstructions() {
     <li>${collectInstructions}</li>
     <li>Left-click to shoot pollen at female flowers</li>
     <li>Right-click to switch between collected pollen colors</li>
-    <li>Match the pollen color to the female flower color for +${gameSettings.pointsPerMatch} points</li>
+    <li>Match pollen color to female flower color for +${gameSettings.pointsPerMatch} points</li>
     <li>Wrong color matches will subtract ${gameSettings.penaltyPoints} points</li>
     <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration/1000} seconds to win!</li>
-    <li>Press [P] to PAUSE / RESUME</li>
-    <li>Press [Q] to QUIT</li>
   `;
+  }
 }
 
 function showInstructions() {
@@ -579,118 +587,33 @@ function gameLoop() {
 // Event listeners
 if (gameActive && isMobile  === true) {
 
-  let tapCount = 0; // Variable to keep track of tap count
-  let lastTapTime = 0; // Variable to store the timestamp of the last tap
-  let longPressTimer = null; // Timer for long press
-  let longPressDelay = 1000; // Delay in milliseconds for long press
-  let preventLongPress = false; // Flag to prevent long press default behavior
-  const doubleTapDelay = 100; // Maximum time delay (in milliseconds) between two taps to be considered a double tap
-
   // Add event listeners for touch events
-  document.addEventListener('touchstart', handleTouchStart, false);
-  document.addEventListener('touchend', handleTouchEnd, false);
+  canvas.addEventListener('touchstart', handleTouchStart, false);
+  canvas.addEventListener('touchend', handleTouchEnd, false);
 
   function handleTouchStart(event) {
-    if (preventLongPress) {
-      event.preventDefault();
-    }
+    event.preventDefault();
     // Get the touch point coordinates
     touch = event.touches[0]; // Get the first touch point
-
-    lastTapTime = new Date().getTime(); // Update the last tap timestamp
-
-    // Start the long press timer
-    longPressTimer = setTimeout(handleLongPress, longPressDelay);
   }
 
   function handleTouchEnd(event) {
-    if (preventLongPress) {
-      event.preventDefault();
-    }
-    // Clear the long press timer if a long press didn't occur
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
 
-    const currentTime = new Date().getTime();
-    const tapDelay = currentTime - lastTapTime;
-
-    // Check if the tap delay is within the double tap delay threshold
-    if (tapDelay < doubleTapDelay) {
-      tapCount++;
-    } else {
-      tapCount = 1; // Reset the tap count for a new single tap
-    }
-
-    // Handle single tap and double tap events
-    if (tapCount === 1) {
-      // Single tap event
-      console.log('Single tap detected');
-      // Add your single tap logic here
+      // Follow tap
       mouseX = touch.clientX;
-      mouseY = touch.clientY - 100;
-    } else if (tapCount === 2) {
-      // Double tap event
-      console.log('Double tap detected');
-      // Add your double tap logic here
-      if (currentPollenColor) { 
-        document.getElementById('shootSound').play();
-        const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-        const speed = 10;
-        const count = currentPollenColors.get(currentPollenColor);
-        if (count > 0) {
-            pollenBalls.push(new PollenBall(
-                robot.x, robot.y,
-                Math.cos(angle) * speed,
-                Math.sin(angle) * speed,
-                currentPollenColor
-            ));
-            currentPollenColors.set(currentPollenColor, count - 1);
-            if (count === 1) {
-                currentPollenColors.delete(currentPollenColor);
-                const colors = Array.from(currentPollenColors.keys());
-                currentPollenColor = colors.length > 1 ? colors[0] : null;
-            }
-            if (currentPollenColors.get(currentPollenColor) == 0) {
-                currentPollenColors.delete(currentPollenColor);
-                if (currentPollenColors.size > 0) {
-                    currentPollenColor = Array.from(currentPollenColors.keys())[0];
-                } else {
-                    currentPollenColor = null;
-                }
-            } 
-        }       
-      updatePollenDisplay();  
-      }
-      tapCount = 0; // Reset the tap count
-      // Reset the preventLongPress flag
-      preventLongPress = false;
-    }
+      mouseY = touch.clientY - canvasMargin;
   }
 
-  function handleLongPress() {
-    // Set the preventLongPress flag to true
-    preventLongPress = true;
-    // Handle long press event
-    console.log('Long press detected');
-    // Add your long press logic here
-    if (currentPollenColors.size > 0) {
-      const colors = Array.from(currentPollenColors.keys());
-      const currentIndex = colors.indexOf(currentPollenColor);
-      currentPollenColor = colors[(currentIndex + 1) % colors.length];
-    }else{
-      currentPollenColors.clear();
-    }  
-    // Clear the long press timer
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
 
 } else {
+
+  // Follow mouse
   window.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
-      mouseY = e.clientY - 100;
+      mouseY = e.clientY - canvasMargin;
   });
 
+  // Right-click (Switch)
   window.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       if (currentPollenColors.size > 0) {
@@ -702,8 +625,9 @@ if (gameActive && isMobile  === true) {
       }
   });
 
+  // Left click
   window.addEventListener('mousedown', (e) => {
-    if (e.button === 0 && currentPollenColor) { // Left click
+    if (e.button === 0 && currentPollenColor) { 
       document.getElementById('shootSound').play();
       const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
       const speed = 10;
@@ -734,6 +658,7 @@ if (gameActive && isMobile  === true) {
     }
   });
 }
+// Key Press Events
 window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyP' && gameActive) {
         isPaused = !isPaused;
@@ -764,29 +689,10 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyQ' && gameActive) {
         showQuitOverlay();
     }
-    if (isMobile === false && e.code === 'Space') {
-        const nearbyMaleFlowers = flowers.filter(f => 
-            f.type === 'male' &&
-            Math.hypot(f.x - robot.x, f.y - robot.y) < 50
-        );
-        
-        if (nearbyMaleFlowers.length > 0) {
-            document.getElementById('pollenCollectSound').play();
-            // Get just the first flower and collect 1 pollen
-            const flower = nearbyMaleFlowers[0];
-            const count = currentPollenColors.get(flower.color) || 0;
-            currentPollenColors.set(flower.color, count + 1);
-            if (!currentPollenColor) currentPollenColor = flower.color;
-            
-            // Remove the collected flower
-            flowers = flowers.filter(f => f !== flower);
-            
-            updatePollenDisplay();
-        }
-    }
+
 });
 
-// Check for collisions
+// Check for pollen collection approach
 setInterval(() => {
     if (!gameActive) return;
     
@@ -808,27 +714,27 @@ setInterval(() => {
         });
     });
 
-    if (isMobile  === true) {
-      // Check for collisions with male flowers
-      const nearbyMaleFlowers = flowers.filter(f =>
-          f.type === 'male' &&
-          Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
-      );
 
-      if (nearbyMaleFlowers.length > 0) {
-          document.getElementById('pollenCollectSound').play();
-          // Get just the first flower and collect 1 pollen
-          const flower = nearbyMaleFlowers[0];
-          const count = currentPollenColors.get(flower.color) || 0;
-          currentPollenColors.set(flower.color, count + 1);
-          if (!currentPollenColor) currentPollenColor = flower.color;
+    // Check for approach to male flowers
+    const nearbyMaleFlowers = flowers.filter(f =>
+        f.type === 'male' &&
+        Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
+    );
 
-          // Remove the collected flower
-          flowers = flowers.filter(f => f !== flower);
+    if (nearbyMaleFlowers.length > 0) {
+        document.getElementById('pollenCollectSound').play();
+        // Get just the first flower and collect 1 pollen
+        const flower = nearbyMaleFlowers[0];
+        const count = currentPollenColors.get(flower.color) || 0;
+        currentPollenColors.set(flower.color, count + 1);
+        if (!currentPollenColor) currentPollenColor = flower.color;
 
-          updatePollenDisplay();
-      }
+        // Remove the collected flower
+        flowers = flowers.filter(f => f !== flower);
+
+        updatePollenDisplay();
     }
+    
 }, 16);
 
 // Function to get the screen width
@@ -836,23 +742,22 @@ function getScreenWidth() {
   return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 }
 
-// Function to set the background image
-function setBackgroundImage() {
-  const screenWidth = getScreenWidth();
-  const body = document.body;
-
-  if (screenWidth <= 480) {
-    // Small screen, use mobile background image
-    bg = 'assets/backgrounds/terrain2.jpg';
-    title = 'assets/backgrounds/title2.jpg';
-  } else {
-    // Large screen, use desktop background image
-    bg = 'assets/backgrounds/terrain.jpg';
-    title = 'assets/backgrounds/titile2.jpg';
-  }
+// Function to detect mobile devices
+function isMobileDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  return (
+    /android/i.test(userAgent) ||
+    /webos/i.test(userAgent) ||
+    /iphone/i.test(userAgent) ||
+    /ipad/i.test(userAgent) ||
+    /ipod/i.test(userAgent) ||
+    /blackberry/i.test(userAgent) ||
+    /windows phone/i.test(userAgent)
+  );
 }
-setBackgroundImage();
+
+// Load Settings
 loadSettings();
+
 // Start game loop
 gameLoop();
-updateInstructions();

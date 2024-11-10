@@ -293,4 +293,10 @@
   #gameCanvas {
     background-image: url('../backgrounds/terrain2.jpg');
   }
+  #instructions {
+    font-size: 0.9em;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+  }
 }
