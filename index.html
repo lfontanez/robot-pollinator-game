@@ -7,6 +7,7 @@
     <meta name="description" content="Robot Pollinator Game is a fun and educational web-based game where players control a robot pollinator to help pollinate flowers and earn points.">
     <title>Robot Pollinator Game</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
@@ -21,7 +22,7 @@
     <button onclick="showSettings()">Settings</button>
   </div>
   <!-- Footer -->
-  <div id="footer">Copyright &copy; 2024 R1 Software</div> 
+  <div id="footer">Copyright &copy; 2024 R1 Software</div>
 </div>
 
 <!-- Game Settings -->
@@ -110,7 +111,7 @@
 <!-- Pause / Resume -->
 <div id="pauseOverlay">
   <h2>PAUSED</h2>
-  <p>Press 'P' to resume</p>
+  <p></p>
 </div>
 
 <!-- Quit -->
@@ -145,12 +146,20 @@
   <source src="assets/audio/game-over.mp3" type="audio/mpeg">
 </audio>
 
+<!-- Game Stats -->
+ <div class="game-stats">
+  <div id="score">Score: 0</div>
+  <div id="timer">Time: 1:30</div>
+  <div id="currentColor">Current Pollen: None</div>
+ </div>
 <!-- Game  -->
-<div id="score">Score: 0</div>
-<div id="timer">Time: 1:30</div>
-<div id="currentColor">Current Pollen: None</div>
 <canvas id="gameCanvas"></canvas>
-
+<!-- Game Controls -->
+<div id="gameControls">
+  <div class="icon-container">
+    <i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon"></i>
+  </div>
+</div>
 <!-- JavaScript Files -->
 <script type="text/javascript" src="assets/js/game.js"></script>
 </body>

@@ -9,6 +9,8 @@
  */
 
 let canvasMargin = 100;
+let pauseStart;
+let pausedTime = 0;
 
 // Mouse position tracking
 let mouseX = 0;
@@ -27,6 +29,7 @@ if (isMobile) {
 
 // Elements
 const canvas = document.getElementById('gameCanvas');
+const gameControls = document.getElementById('gameControls');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const currentColorElement = document.getElementById('currentColor');
@@ -260,8 +263,13 @@ function updatePollenDisplay() {
 
 function updateTimer() {
     if (!gameActive) return;
-    
-    const elapsed = Date.now() - gameStartTime;
+    const now = Date.now();
+    let elapsed = now - gameStartTime;
+    if (pausedTime > 0) { 
+      gameStartTime = gameStartTime + pausedTime;
+      elapsed = 0;
+      pausedTime = 0;
+    }
     const remaining = Math.max(0, gameSettings.duration - elapsed);
     
     const minutes = Math.floor(remaining / 60000);
@@ -274,6 +282,7 @@ function updateTimer() {
 }
 
 function endGame() {
+    gameControls.style.display = 'hidden';
     gameActive = false;
     gameOverElement.style.display = 'block';
     const finalMessage = document.getElementById('finalMessage');
@@ -300,6 +309,7 @@ function endGame() {
 
 function startNewGame() {
     loadSettings();
+    showGameControls();
     document.getElementById('bgMusic').currentTime = 0;
     score = 0;
     scoreElement.textContent = 'Score: 0';
@@ -604,6 +614,44 @@ if (isMobile === true) {
     mouseY = touch.clientY - canvasMargin;
   }
 
+  const pauseIcon = document.getElementById('pauseIcon');
+
+  pauseIcon.addEventListener('touchend', togglePlayPause);
+
+  function togglePlayPause() {
+    isPaused = !isPaused;
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+    
+    // Handle background music with promise
+    const bgMusic = document.getElementById('bgMusic');
+    if (isPaused) {
+      pauseStart = Date.now();
+        console.log('Paused Game!');
+        pauseIcon.classList.remove('fa-pause');
+        pauseIcon.classList.add('fa-play');
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                bgMusic.pause();
+            }).catch(error => {
+                console.log("Audio pause prevented:", error);
+            });
+        }
+    } else {
+        pausedTime = Date.now() - pauseStart;
+        console.log('Resumed Game!');
+        pauseIcon.classList.remove('fa-play');
+        pauseIcon.classList.add('fa-pause');
+        try {
+            bgMusic.play().catch(error => {
+                console.log("Playback prevented:", error);
+            });
+        } catch (e) {
+            console.log("Audio play failed:", e);
+        }
+    }
+  }
 } else {
 
   // Follow mouse
@@ -753,6 +801,11 @@ function isMobileDevice() {
     /blackberry/i.test(userAgent) ||
     /windows phone/i.test(userAgent)
   );
+}
+
+// Replace footer with game controls
+function showGameControls() {
+  gameControls.style.display = 'block';
 }
 
 // Load Settings
