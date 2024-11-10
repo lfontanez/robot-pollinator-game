@@ -64,7 +64,7 @@ let gameSettings = {
   pointsToWin: 1000,
   pointsPerMatch: 100,
   penaltyPoints: 100,
-  buttons: 'right',
+  buttons: '',
   bgImage: '',
   titleBgImage: '',
   bgMusic: '',
@@ -79,14 +79,15 @@ let gameStartTime = Date.now();
 function showSettings() {
   document.getElementById('settingsScreen').style.display = 'flex';
   document.getElementById('introScreen').style.display = 'none';
-  loadSettings();
 }
 
 // Close Settings
 function closeSettings() {
-  loadSettings();
+ /* loadSettings();
   document.getElementById('settingsScreen').style.display = 'none';
   document.getElementById('introScreen').style.display = 'flex';
+  */
+  location.reload();
 }
 
 // Load settings from localStorage
@@ -110,14 +111,17 @@ function loadSettings() {
   if (gameSettings.bgMusic) document.getElementById('bgMusic').src = gameSettings.bgMusic;
   if (gameSettings.winSound) document.getElementById('winSound').src= gameSettings.winSound;
   if (gameSettings.gameOverSound) document.getElementById('gameOverSound').src = gameSettings.gameOverSound;
-  if (gameSettings.buttons) swapButtons.value = gameSettings.buttons;
-  if (gameSettings.buttons == 'left') {
-    set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
-    set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
-  } else {
-    set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-    set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"><i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
-  } 
+
+  if (isMobile) {
+    if (!gameSettings.buttons) {
+      gameSettings.buttons = 'right';
+    } else if (gameSettings.buttons == 'left') {
+        set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+        set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
+    }
+    bindMobile();
+  }
+
   // Update instructions when settings load
   updateInstructions(); 
 }
@@ -153,14 +157,15 @@ function saveSettings() {
       }
 
       // Apply button position
-      if (swapButtons.value == 'left') {
-        set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-        set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
-      } else {
-        set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"><i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
-        set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-      } 
-         
+      if (isMobile) {
+        if (swapButtons.value  == 'left') {
+          set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+          set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+        } else {
+          set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"></i><<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
+          set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+        } 
+      }  
       // Apply audio settings immediately
       const bgMusic = document.getElementById('bgMusic');
       const winSound = document.getElementById('winSound');
@@ -282,6 +287,7 @@ function updatePollenDisplay() {
     }
 }
 
+// Timer
 function updateTimer() {
     if (!gameActive) return;
     const now = Date.now();
@@ -302,6 +308,7 @@ function updateTimer() {
     }
 }
 
+// Game Finished
 function endGame() {
     gameControls.style.display = 'none';
     gameActive = false;
@@ -328,8 +335,9 @@ function endGame() {
     }
 }
 
+// Begin Game
 function startNewGame() {
-    loadSettings();
+
     showGameControls();
     document.getElementById('bgMusic').currentTime = 0;
     score = 0;
@@ -517,6 +525,7 @@ function hideInstructions() {
   document.getElementById('introScreen').style.display = 'flex';
 }
 
+// Play Button User Action
 function startGame() {
   document.getElementById('introScreen').style.display = 'none';
   // Make sure we have user interaction before playing
@@ -616,7 +625,11 @@ function gameLoop() {
 }
 
 // Event listeners
-if (isMobile === true) {
+function bindMobile() {
+  let pauseIcon = document.getElementById('pauseIcon');
+  let quitIcon = document.getElementById('quitIcon');
+  let switchIcon = document.getElementById('switchIcon');
+  let fireIcon = document.getElementById('fireIcon'); 
 
   // Add event listeners for touch events
   canvas.addEventListener('touchstart', handleTouchStart, false);
@@ -633,12 +646,7 @@ if (isMobile === true) {
     // Follow tap
     mouseX = touch.clientX;
     mouseY = touch.clientY - pointerCorrection;
-  }
-
-  const pauseIcon = document.getElementById('pauseIcon');
-  const quitIcon = document.getElementById('quitIcon');
-  const switchIcon = document.getElementById('switchIcon');
-  const fireIcon = document.getElementById('fireIcon');
+  } 
 
   // Pause
   pauseIcon.addEventListener('touchend', (e) => {
@@ -650,7 +658,10 @@ if (isMobile === true) {
     // Handle background music with promise
     const bgMusic = document.getElementById('bgMusic');
     if (isPaused) {
-      quitIcon.style.display = 'none';
+      quitIcon.style.visibility= 'hidden';
+      switchIcon.style.visibility= 'hidden';
+      fireIcon.style.visibility= 'hidden';
+
       pauseStart = Date.now();
         console.log('Paused Game!');
         pauseIcon.classList.remove('fa-pause');
@@ -664,11 +675,15 @@ if (isMobile === true) {
             });
         }
     } else {
-        quitIcon.style.display = 'inline-block';
-        pausedTime = Date.now() - pauseStart;
-        console.log('Resumed Game!');
-        pauseIcon.classList.remove('fa-play');
-        pauseIcon.classList.add('fa-pause');
+      quitIcon.style.visibility= 'visible';
+      switchIcon.style.visibility= 'visible';
+      fireIcon.style.visibility= 'visible';
+      
+      pausedTime = Date.now() - pauseStart;
+      console.log('Resumed Game!');
+      pauseIcon.classList.remove('fa-play');
+      pauseIcon.classList.add('fa-pause');
+
         try {
             bgMusic.play().catch(error => {
                 console.log("Playback prevented:", error);
@@ -726,9 +741,9 @@ if (isMobile === true) {
       }       
     updatePollenDisplay();  
     }
-  });
-} else {
-
+  });  
+} 
+if (isMobile === false) {
   // Follow mouse
   window.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
@@ -881,6 +896,14 @@ function showGameControls() {
   gameControls.style.display = 'block';
 }
 
+// Function to remove all event listeners
+function removeListeners(element) {
+  const clonedElement = element.cloneNode(true);
+  element.parentNode.replaceChild(clonedElement, element);
+  return clonedElement;
+}
+
+// Set canvas
 resizeCanvas();
 
 // Load Settings
