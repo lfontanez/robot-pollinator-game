@@ -37,7 +37,10 @@ if (isMobile) {
   console.log("You're on a mobile device!");
   canvasMargin = 150;
 } else {
-  swapButtons.style.display = 'none'
+  swapButtons.style.display = 'none';
+  // Get the label element
+  const label = swapButtons.closest('label');
+  label.style.display = 'none';
   console.log("You're on a desktop or laptop!");
 }
 
