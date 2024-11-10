@@ -8,10 +8,10 @@
  * https://r1software.com
  */
 
-let canvasMargin = 100;
+let canvasMargin = 80;
 let pauseStart;
 let pausedTime = 0;
-
+let pointerCorrection = 80;
 // Mouse position tracking
 let mouseX = 0;
 let mouseY = 0;
@@ -41,7 +41,6 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight - canvasMargin;
 }
-resizeCanvas();
 
 // Auto resize game canvas
 window.addEventListener('resize', resizeCanvas);
@@ -229,6 +228,7 @@ function hideQuitOverlay() {
 
 // Quit
 function quitToTitle() {
+  gameOverElement.style.display = 'none';
   hideQuitOverlay();
   gameActive = false;
   document.getElementById('introScreen').style.display = 'flex';
@@ -598,27 +598,30 @@ function gameLoop() {
 if (isMobile === true) {
 
   // Add event listeners for touch events
-  window.addEventListener('touchstart', handleTouchStart, false);
-  window.addEventListener('touchend', handleTouchEnd, false);
+  canvas.addEventListener('touchstart', handleTouchStart, false);
+  canvas.addEventListener('touchend', handleTouchEnd, false);
 
   function handleTouchStart(e) {
-    console.log('Touch start');
+    //console.log('Touch start');
     // Get the touch point coordinates
     touch = e.touches[0]; // Get the first touch point
   }
 
   function handleTouchEnd(e) {
-    console.log('Touch End');
+    //console.log('Touch End');
     // Follow tap
     mouseX = touch.clientX;
-    mouseY = touch.clientY - canvasMargin;
+    mouseY = touch.clientY - pointerCorrection;
   }
 
   const pauseIcon = document.getElementById('pauseIcon');
+  const quitIcon = document.getElementById('quitIcon');
+  const switchIcon = document.getElementById('switchIcon');
+  const fireIcon = document.getElementById('fireIcon');
 
-  pauseIcon.addEventListener('touchend', togglePlayPause);
+  // Pause
+  pauseIcon.addEventListener('touchend', (e) => {
 
-  function togglePlayPause() {
     isPaused = !isPaused;
     const pauseOverlay = document.getElementById('pauseOverlay');
     pauseOverlay.style.display = isPaused ? 'flex' : 'none';
@@ -626,6 +629,7 @@ if (isMobile === true) {
     // Handle background music with promise
     const bgMusic = document.getElementById('bgMusic');
     if (isPaused) {
+      quitIcon.style.display = 'none';
       pauseStart = Date.now();
         console.log('Paused Game!');
         pauseIcon.classList.remove('fa-pause');
@@ -639,6 +643,7 @@ if (isMobile === true) {
             });
         }
     } else {
+        quitIcon.style.display = 'inline-block';
         pausedTime = Date.now() - pauseStart;
         console.log('Resumed Game!');
         pauseIcon.classList.remove('fa-play');
@@ -651,25 +656,74 @@ if (isMobile === true) {
             console.log("Audio play failed:", e);
         }
     }
-  }
+  });
+
+  // Quit
+  quitIcon.addEventListener('touchend', showQuitOverlay);
+
+  // Switch
+  switchIcon.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    console.log('Switched pollen!');
+    if (currentPollenColors.size > 0) {
+      const colors = Array.from(currentPollenColors.keys());
+      const currentIndex = colors.indexOf(currentPollenColor);
+      currentPollenColor = colors[(currentIndex + 1) % colors.length];
+    }else{
+      currentPollenColors.clear();
+    }
+  });
+
+  // Fire
+  fireIcon.addEventListener('touchend', (e) => {
+    if (currentPollenColor) { 
+      document.getElementById('shootSound').play();
+      const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+      const speed = 10;
+      const count = currentPollenColors.get(currentPollenColor);
+      if (count > 0) {
+        pollenBalls.push(new PollenBall(
+          robot.x, robot.y,
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed,
+          currentPollenColor
+        ));
+        currentPollenColors.set(currentPollenColor, count - 1);
+        if (count === 1) {
+          currentPollenColors.delete(currentPollenColor);
+          const colors = Array.from(currentPollenColors.keys());
+          currentPollenColor = colors.length > 1 ? colors[0] : null;
+        }
+        if (currentPollenColors.get(currentPollenColor) == 0) {
+          currentPollenColors.delete(currentPollenColor);
+          if (currentPollenColors.size > 0) {
+              currentPollenColor = Array.from(currentPollenColors.keys())[0];
+          } else {
+              currentPollenColor = null;
+          }
+      } 
+      }       
+    updatePollenDisplay();  
+    }
+  });
 } else {
 
   // Follow mouse
   window.addEventListener('mousemove', (e) => {
       mouseX = e.clientX;
-      mouseY = e.clientY - canvasMargin;
+      mouseY = e.clientY - pointerCorrection;
   });
 
   // Right-click (Switch)
   window.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      if (currentPollenColors.size > 0) {
-          const colors = Array.from(currentPollenColors.keys());
-          const currentIndex = colors.indexOf(currentPollenColor);
-          currentPollenColor = colors[(currentIndex + 1) % colors.length];
-      }else{
-        currentPollenColors.clear();
-      }
+    e.preventDefault();
+    if (currentPollenColors.size > 0) {
+      const colors = Array.from(currentPollenColors.keys());
+      const currentIndex = colors.indexOf(currentPollenColor);
+      currentPollenColor = colors[(currentIndex + 1) % colors.length];
+    }else{
+      currentPollenColors.clear();
+    }
   });
 
   // Left click
@@ -680,26 +734,26 @@ if (isMobile === true) {
       const speed = 10;
       const count = currentPollenColors.get(currentPollenColor);
       if (count > 0) {
-          pollenBalls.push(new PollenBall(
-              robot.x, robot.y,
-              Math.cos(angle) * speed,
-              Math.sin(angle) * speed,
-              currentPollenColor
-          ));
-          currentPollenColors.set(currentPollenColor, count - 1);
-          if (count === 1) {
-              currentPollenColors.delete(currentPollenColor);
-              const colors = Array.from(currentPollenColors.keys());
-              currentPollenColor = colors.length > 1 ? colors[0] : null;
+        pollenBalls.push(new PollenBall(
+          robot.x, robot.y,
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed,
+          currentPollenColor
+        ));
+        currentPollenColors.set(currentPollenColor, count - 1);
+        if (count === 1) {
+          currentPollenColors.delete(currentPollenColor);
+          const colors = Array.from(currentPollenColors.keys());
+          currentPollenColor = colors.length > 1 ? colors[0] : null;
+        }
+        if (currentPollenColors.get(currentPollenColor) == 0) {
+          currentPollenColors.delete(currentPollenColor);
+          if (currentPollenColors.size > 0) {
+              currentPollenColor = Array.from(currentPollenColors.keys())[0];
+          } else {
+              currentPollenColor = null;
           }
-          if (currentPollenColors.get(currentPollenColor) == 0) {
-              currentPollenColors.delete(currentPollenColor);
-              if (currentPollenColors.size > 0) {
-                  currentPollenColor = Array.from(currentPollenColors.keys())[0];
-              } else {
-                  currentPollenColor = null;
-              }
-          } 
+      } 
       }       
     updatePollenDisplay();  
     }
@@ -708,80 +762,78 @@ if (isMobile === true) {
   // Key Press Events
   window.addEventListener('keydown', (e) => {
       if (e.code === 'KeyP' && gameActive) {
-          isPaused = !isPaused;
-          const pauseOverlay = document.getElementById('pauseOverlay');
-          pauseOverlay.style.display = isPaused ? 'flex' : 'none';
-          
-          // Handle background music with promise
-          const bgMusic = document.getElementById('bgMusic');
-          if (isPaused) {
-              const playPromise = bgMusic.play();
-              if (playPromise !== undefined) {
-                  playPromise.then(() => {
-                      bgMusic.pause();
-                  }).catch(error => {
-                      console.log("Audio pause prevented:", error);
-                  });
-              }
-          } else {
-              try {
-                  bgMusic.play().catch(error => {
-                      console.log("Playback prevented:", error);
-                  });
-              } catch (e) {
-                  console.log("Audio play failed:", e);
-              }
-          }
+        isPaused = !isPaused;
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+        
+        // Handle background music with promise
+        const bgMusic = document.getElementById('bgMusic');
+        if (isPaused) {
+            const playPromise = bgMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    bgMusic.pause();
+                }).catch(error => {
+                    console.log("Audio pause prevented:", error);
+                });
+            }
+        } else {
+            try {
+                bgMusic.play().catch(error => {
+                    console.log("Playback prevented:", error);
+                });
+            } catch (e) {
+                console.log("Audio play failed:", e);
+            }
+        }
       }
       if (e.code === 'KeyQ' && gameActive) {
-          showQuitOverlay();
+        showQuitOverlay();
       }
 
   });
 
 // Check for pollen collection approach
 setInterval(() => {
-    if (!gameActive) return;
-    
-    pollenBalls.forEach((ball, index) => {
-        flowers.forEach((flower, flowerIndex) => {
-            if (flower.type === 'female' &&
-                Math.hypot(ball.x - flower.x, ball.y - flower.y) < flower.size) {
-                if (ball.color === flower.color) {
-                    document.getElementById('successSound').play();
-                    score += gameSettings.pointsPerMatch;
-                } else {
-                    document.getElementById('failureSound').play();
-                    score = Math.max(0, score - gameSettings.penaltyPoints);
-                }
-                scoreElement.textContent = `Score: ${score}`;
-                pollenBalls.splice(index, 1);
-                flowers.splice(flowerIndex, 1);
+  if (!gameActive) return;
+  
+  pollenBalls.forEach((ball, index) => {
+    flowers.forEach((flower, flowerIndex) => {
+        if (flower.type === 'female' &&
+            Math.hypot(ball.x - flower.x, ball.y - flower.y) < flower.size) {
+            if (ball.color === flower.color) {
+                document.getElementById('successSound').play();
+                score += gameSettings.pointsPerMatch;
+            } else {
+                document.getElementById('failureSound').play();
+                score = Math.max(0, score - gameSettings.penaltyPoints);
             }
-        });
+            scoreElement.textContent = `Score: ${score}`;
+            pollenBalls.splice(index, 1);
+            flowers.splice(flowerIndex, 1);
+        }
     });
+  });
 
+  // Check for approach to male flowers
+  const nearbyMaleFlowers = flowers.filter(f =>
+      f.type === 'male' &&
+      Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
+  );
 
-    // Check for approach to male flowers
-    const nearbyMaleFlowers = flowers.filter(f =>
-        f.type === 'male' &&
-        Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
-    );
+  if (nearbyMaleFlowers.length > 0) {
+      document.getElementById('pollenCollectSound').play();
+      // Get just the first flower and collect 1 pollen
+      const flower = nearbyMaleFlowers[0];
+      const count = currentPollenColors.get(flower.color) || 0;
+      currentPollenColors.set(flower.color, count + 1);
+      if (!currentPollenColor) currentPollenColor = flower.color;
 
-    if (nearbyMaleFlowers.length > 0) {
-        document.getElementById('pollenCollectSound').play();
-        // Get just the first flower and collect 1 pollen
-        const flower = nearbyMaleFlowers[0];
-        const count = currentPollenColors.get(flower.color) || 0;
-        currentPollenColors.set(flower.color, count + 1);
-        if (!currentPollenColor) currentPollenColor = flower.color;
+      // Remove the collected flower
+      flowers = flowers.filter(f => f !== flower);
 
-        // Remove the collected flower
-        flowers = flowers.filter(f => f !== flower);
-
-        updatePollenDisplay();
-    }
-    
+      updatePollenDisplay();
+  }
 }, 16);
 
 // Function to get the screen width
@@ -807,6 +859,8 @@ function isMobileDevice() {
 function showGameControls() {
   gameControls.style.display = 'block';
 }
+
+resizeCanvas();
 
 // Load Settings
 loadSettings();

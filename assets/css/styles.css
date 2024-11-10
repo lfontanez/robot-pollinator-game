@@ -49,12 +49,12 @@
   background: #FF6B6B;
 }
 #gameCanvas {
+  position: relative;
   background: linear-gradient(#2a3442, #1a2432);
   background-image: url('../backgrounds/terrain.jpg');
   background-size: cover;
   overflow: hidden;
   background-position: center;
-  margin-top: 100px;
 }
 #score {
   position: fixed;
@@ -66,7 +66,7 @@
 #timer {
   position: fixed;
   top: 20px;
-  right: 41px;
+  right: 25px;
   color: white;
   font-size: 24px;
 }
@@ -102,6 +102,7 @@
   padding: 40px;
   border-radius: 10px;
   text-align: center;
+  z-index: 100;
 }
 #gameOver button {
   margin-top: 10px;
@@ -285,8 +286,10 @@
   margin-bottom: 10px;
 }
 #gameControls {
+  position: relative;
   display: none;
   color: #ffffff;
+  height: 50px;
 }
 .left-controls {
 float: left;
@@ -295,23 +298,22 @@ float: left;
   float: right;
 }
 .game-stats {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
+  height: 80px;
   padding: 5px;
 }
 .icon-container {
   display: block;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 50px;
 }
-
 .icon {
   font-size: 4rem;
   color: #ffffff;
   cursor: pointer;
-  padding-left: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 /* Media query for small screens */
@@ -321,7 +323,6 @@ float: left;
   }
   #gameCanvas {
     background-image: url('../backgrounds/terrain2.jpg');
-    background-position: center;
   }
   #instructions {
     font-size: 0.9em;
