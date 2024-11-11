@@ -9,9 +9,11 @@
  */
  body {
   margin: 0;
-  overflow: hidden;
+  padding: 0;
+  height: 100vh;
   background: #1a2432;
   font-family: Arial, sans-serif;
+  box-sizing: border-box;
 }
 #quitOverlay {
   position: fixed;
@@ -269,7 +271,6 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: calc(100vh - 50px);
   background: rgba(0, 0, 0, 0.8);
   display: none;
   flex-direction: column;
@@ -277,6 +278,7 @@
   justify-content: center;
   color: white;
   z-index: 99;
+  overflow: auto;
 }
 #pauseOverlay h2 {
   font-size: 48px;
@@ -292,8 +294,12 @@
   color: #ffffff;
   height: 50px;
 }
+.right-controls,
 .left-controls {
-float: left;
+  margin-top: 10px;
+}
+.left-controls {
+  float: left;
 }
 .right-controls {
   float: right;
@@ -301,12 +307,9 @@ float: left;
 .game-stats {
   position: relative;
   height: 80px;
-  padding: 5px;
 }
 .icon-container {
   display: block;
-  justify-content: center;
-  align-items: center;
   height: 50px;
 }
 .icon {
@@ -334,6 +337,6 @@ float: left;
     padding-inline-start: 10px;
   }
   .icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 }

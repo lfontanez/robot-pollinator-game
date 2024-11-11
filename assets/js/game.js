@@ -23,6 +23,8 @@ const isMobile = isMobileDevice();
 
 // Elements
 const canvas = document.getElementById('gameCanvas');
+const controls = document.getElementById('gameControls');
+const pauseOverlay = document.getElementById('pauseOverlay');
 const gameControls = document.getElementById('gameControls');
 const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
@@ -46,9 +48,20 @@ if (isMobile) {
 
 // Set canvas size
 function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - canvasMargin;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - canvasMargin;
 }
+
+// Set overlay height
+function setOverlayHeight() {
+  const overlay = document.getElementById('pauseOverlay');
+  const controlsHeight = (isMobile) ? 65 : 0;
+  const viewportHeight = window.innerHeight;
+  overlay.style.height = `${viewportHeight - controlsHeight}px`;
+}
+
+window.addEventListener('load', setOverlayHeight);
+window.addEventListener('resize', setOverlayHeight);
 
 // Auto resize game canvas
 window.addEventListener('resize', resizeCanvas);
