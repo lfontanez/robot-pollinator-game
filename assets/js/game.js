@@ -1,6 +1,6 @@
 /**
  * Robot Pollinator Game
- * 
+ *
  * Description: JavaScript (JS)
  *
  * @author: Leamsi Fontánez - lfontanez@r1software.com
@@ -36,28 +36,28 @@ const set1 = document.getElementById('set1');
 const set2 = document.getElementById('set2');
 
 if (isMobile) {
-  console.log("You're on a mobile device!");
-  canvasMargin = 150;
+	console.log("You're on a mobile device!");
+	canvasMargin = 150;
 } else {
-  swapButtons.style.display = 'none';
-  // Get the label element
-  const label = swapButtons.closest('label');
-  label.style.display = 'none';
-  console.log("You're on a desktop or laptop!");
+	swapButtons.style.display = 'none';
+	// Get the label element
+	const label = swapButtons.closest('label');
+	label.style.display = 'none';
+	console.log("You're on a desktop or laptop!");
 }
 
 // Set canvas size
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight - canvasMargin;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight - canvasMargin;
 }
 
 // Set overlay height
 function setOverlayHeight() {
-  const overlay = document.getElementById('pauseOverlay');
-  const controlsHeight = (isMobile) ? 65 : 0;
-  const viewportHeight = window.innerHeight;
-  overlay.style.height = `${viewportHeight - controlsHeight}px`;
+	const overlay = document.getElementById('pauseOverlay');
+	const controlsHeight = isMobile ? 65 : 0;
+	const viewportHeight = window.innerHeight;
+	overlay.style.height = `${viewportHeight - controlsHeight}px`;
 }
 
 window.addEventListener('load', setOverlayHeight);
@@ -74,311 +74,320 @@ const colors = ['#FF6B6B', '#4ECDC4', '#FFD93D'];
 let currentPollenColor = null;
 let currentPollenColors = new Map(); // Map of color -> count
 let isMovingTowardsMouse = false;
-
-// Game settings with defaults
-let gameSettings = {
-  speed: 3,
-  duration: 90000,
-  pointsToWin: 1000,
-  pointsPerMatch: 100,
-  penaltyPoints: 100,
-  buttons: '',
-  bgImage: '',
-  titleBgImage: '',
-  bgMusic: '',
-  winSound: '',
-  gameOverSound: ''
-};
-
 // Timer management
 let gameStartTime = Date.now();
 
+// Game settings with defaults
+let gameSettings = {
+	speed: 3,
+	duration: 90000,
+	pointsToWin: 1000,
+	pointsPerMatch: 100,
+	penaltyPoints: 100,
+	buttons: '',
+	bgImage: '',
+	titleBgImage: '',
+	bgMusic: '',
+	winSound: '',
+	gameOverSound: '',
+};
+
 // Show Settings
 function showSettings() {
-  document.getElementById('settingsScreen').style.display = 'flex';
-  document.getElementById('introScreen').style.display = 'none';
+	document.getElementById('settingsScreen').style.display = 'flex';
+	document.getElementById('introScreen').style.display = 'none';
 }
 
 // Close Settings
 function closeSettings() {
- /* loadSettings();
+	/* loadSettings();
   document.getElementById('settingsScreen').style.display = 'none';
   document.getElementById('introScreen').style.display = 'flex';
   */
-  location.reload();
+	location.reload();
 }
 
 // Load settings from localStorage
 function loadSettings() {
-  const saved = localStorage.getItem('robotPollinatorSettings');
-  if (saved) {
-    gameSettings = JSON.parse(saved);
-  }  
-  // Update form values
-  if (!gameSettings.speed) gameSettings.speed = 3;
-  document.getElementById('gameSpeed').value = gameSettings.speed;
-  document.getElementById('gameDuration').value = gameSettings.duration / 1000;
-  const minutes = Math.floor(gameSettings.duration / 60000000);
-  const seconds = Math.floor((gameSettings.duration  % 60000000) / 1000);
-  timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-  document.getElementById('pointsToWin').value = gameSettings.pointsToWin;
-  document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
-  document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
-  if (gameSettings.bgImage) document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`; 
-  if (gameSettings.titleBgImage) document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;
-  if (gameSettings.bgMusic) document.getElementById('bgMusic').src = gameSettings.bgMusic;
-  if (gameSettings.winSound) document.getElementById('winSound').src= gameSettings.winSound;
-  if (gameSettings.gameOverSound) document.getElementById('gameOverSound').src = gameSettings.gameOverSound;
+	const saved = localStorage.getItem('robotPollinatorSettings');
+	if (saved) {
+		gameSettings = JSON.parse(saved);
+	}
+	// Update form values
+	if (!gameSettings.speed) gameSettings.speed = 3;
+	document.getElementById('gameSpeed').value = gameSettings.speed;
+	document.getElementById('gameDuration').value = gameSettings.duration / 1000;
+	const minutes = Math.floor(gameSettings.duration / 60000000);
+	const seconds = Math.floor((gameSettings.duration % 60000000) / 1000);
+	timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+	document.getElementById('pointsToWin').value = gameSettings.pointsToWin;
+	document.getElementById('pointsPerMatch').value = gameSettings.pointsPerMatch;
+	document.getElementById('penaltyPoints').value = gameSettings.penaltyPoints;
+	if (gameSettings.bgImage)
+		document.getElementById('gameCanvas').style.backgroundImage = `url('${gameSettings.bgImage}')`;
+	if (gameSettings.titleBgImage)
+		document.getElementById('introScreen').style.backgroundImage = `url('${gameSettings.titleBgImage}')`;
+	if (gameSettings.bgMusic) document.getElementById('bgMusic').src = gameSettings.bgMusic;
+	if (gameSettings.winSound) document.getElementById('winSound').src = gameSettings.winSound;
+	if (gameSettings.gameOverSound) document.getElementById('gameOverSound').src = gameSettings.gameOverSound;
 
-  if (isMobile) {
-    if (!gameSettings.buttons) {
-      gameSettings.buttons = 'right';
-      swapButtons.selectedIndex = 0;
-    } else if (gameSettings.buttons == 'left') {
-      swapButtons.selectedIndex = 1;
-      set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
-      set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';   
-    }
-    bindMobile();
-  }
+	if (isMobile) {
+		if (!gameSettings.buttons) {
+			gameSettings.buttons = 'right';
+			swapButtons.selectedIndex = 0;
+		} else if (gameSettings.buttons == 'left') {
+			swapButtons.selectedIndex = 1;
+			set1.innerHTML =
+				'<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+			set2.innerHTML =
+				'<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+		}
+		bindMobile();
+	}
 
-  // Update instructions when settings load
-  updateInstructions(); 
+	// Update instructions when settings load
+	updateInstructions();
 }
 
 // Save Settings
 function saveSettings() {
-  form = document.getElementById('settings');
+	form = document.getElementById('settings');
 
-  if (form.checkValidity()) {
-      // Get base game settings
-      let newGameSettings = {
-        speed: document.getElementById('gameSpeed').value,
-        duration: document.getElementById('gameDuration').value * 1000,
-        pointsToWin: parseInt(document.getElementById('pointsToWin').value),
-        pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
-        penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
-        buttons: swapButtons.value,
-        bgMusic: document.getElementById('bgMusic').src,
-        winSound: document.getElementById('winSound').src,
-        gameOverSound: document.getElementById('gameOverSound').src,
-        bgImage: gameSettings.bgImage, // Preserve the current bgImage URL
-        titleBgImage: gameSettings.titleBgImage // Preserve the current bgImage URL
-      };
- 
-      // Apply visual settings
-      if (gameSettings.bgImage) {
-        document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
-      }
-    
-      // Apply title background if set
-      if (gameSettings.titleBgImage) {
-        document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
-      }
+	if (form.checkValidity()) {
+		// Get base game settings
+		let newGameSettings = {
+			speed: document.getElementById('gameSpeed').value,
+			duration: document.getElementById('gameDuration').value * 1000,
+			pointsToWin: parseInt(document.getElementById('pointsToWin').value),
+			pointsPerMatch: parseInt(document.getElementById('pointsPerMatch').value),
+			penaltyPoints: parseInt(document.getElementById('penaltyPoints').value),
+			buttons: swapButtons.value,
+			bgMusic: document.getElementById('bgMusic').src,
+			winSound: document.getElementById('winSound').src,
+			gameOverSound: document.getElementById('gameOverSound').src,
+			bgImage: gameSettings.bgImage, // Preserve the current bgImage URL
+			titleBgImage: gameSettings.titleBgImage, // Preserve the current bgImage URL
+		};
 
-      // Apply button position
-      if (isMobile) {
-        if (newGameSettings.buttons == 'left') {
-          set2.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-          set1.innerHTML = '<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
-        } else {
-          set2.innerHTML = '<i class="fas fa-recycle switch-icon icon" id="switchIcon"></i><<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
-          set1.innerHTML = '<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
-        }    
-      }  
-      // Apply audio settings immediately
-      const bgMusic = document.getElementById('bgMusic');
-      const winSound = document.getElementById('winSound');
-      const gameOverSound = document.getElementById('gameOverSound');
-    
-      // If new files were selected, their URLs would already be set via the change event handlers
-      // Just make sure to apply any new background music right away
-      if (bgMusic.src !== newGameSettings.bgMusic) {
-        bgMusic.src = newGameSettings.bgMusic;
-      }
-      if (winSound.src !== newGameSettings.winSound) {
-        winSound.src = newGgameSettings.winSound;
-      }
-      if (gameOverSound.src !== gameSettings.gameOverSound) {
-        gameOverSound.src = newGameSettings.gameOverSound;
-      }
-      
-      // Update local storage
-      localStorage.setItem('robotPollinatorSettings', JSON.stringify(newGameSettings));
+		// Apply visual settings
+		if (gameSettings.bgImage) {
+			document.getElementById('gameCanvas').style.backgroundImage = `url(${gameSettings.bgImage})`;
+		}
 
-      // Update Instructions
-      updateInstructions();
+		// Apply title background if set
+		if (gameSettings.titleBgImage) {
+			document.getElementById('introScreen').style.backgroundImage = `url(${gameSettings.titleBgImage})`;
+		}
 
-      // Close Overlay
-      closeSettings();
-  }
+		// Apply button position
+		if (isMobile) {
+			if (newGameSettings.buttons == 'left') {
+				set2.innerHTML =
+					'<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+				set1.innerHTML =
+					'<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i><i class="fas fa-recycle switch-icon icon" id="switchIcon"></i>';
+			} else {
+				set2.innerHTML =
+					'<i class="fas fa-recycle switch-icon icon" id="switchIcon"></i><<i class="fas fa-fire shoot-icon icon" id="fireIcon"></i>';
+				set1.innerHTML =
+					'<i class="fas fa-pause icon" id="pauseIcon"></i><i class="fas fa-sign-out-alt exit-icon icon" id="quitIcon"></i>';
+			}
+		}
+		// Apply audio settings immediately
+		const bgMusic = document.getElementById('bgMusic');
+		const winSound = document.getElementById('winSound');
+		const gameOverSound = document.getElementById('gameOverSound');
+
+		// If new files were selected, their URLs would already be set via the change event handlers
+		// Just make sure to apply any new background music right away
+		if (bgMusic.src !== newGameSettings.bgMusic) {
+			bgMusic.src = newGameSettings.bgMusic;
+		}
+		if (winSound.src !== newGameSettings.winSound) {
+			winSound.src = newGgameSettings.winSound;
+		}
+		if (gameOverSound.src !== gameSettings.gameOverSound) {
+			gameOverSound.src = newGameSettings.gameOverSound;
+		}
+
+		// Update local storage
+		localStorage.setItem('robotPollinatorSettings', JSON.stringify(newGameSettings));
+
+		// Update Instructions
+		updateInstructions();
+
+		// Close Overlay
+		closeSettings();
+	}
 }
 
 // Handle file uploads
-document.getElementById('bgImageUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    gameSettings.bgImage = url;
-    document.getElementById('gameCanvas').style.backgroundImage = `url(${url})`;
-  }
+document.getElementById('bgImageUpload').addEventListener('change', function (e) {
+	const file = e.target.files[0];
+	if (file) {
+		const url = URL.createObjectURL(file);
+		gameSettings.bgImage = url;
+		document.getElementById('gameCanvas').style.backgroundImage = `url(${url})`;
+	}
 });
 
-document.getElementById('titleBgImageUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    gameSettings.titleBgImage = url;
-    document.getElementById('introScreen').style.backgroundImage = `url(${url})`;
-  }
+document.getElementById('titleBgImageUpload').addEventListener('change', function (e) {
+	const file = e.target.files[0];
+	if (file) {
+		const url = URL.createObjectURL(file);
+		gameSettings.titleBgImage = url;
+		document.getElementById('introScreen').style.backgroundImage = `url(${url})`;
+	}
 });
 
-document.getElementById('bgMusicUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    gameSettings.bgMusic = url;
-    document.getElementById('bgMusic').src = url;
-  }
+document.getElementById('bgMusicUpload').addEventListener('change', function (e) {
+	const file = e.target.files[0];
+	if (file) {
+		const url = URL.createObjectURL(file);
+		gameSettings.bgMusic = url;
+		document.getElementById('bgMusic').src = url;
+	}
 });
 
-document.getElementById('winSoundUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    document.getElementById('winSound').src = url;
-  }
+document.getElementById('winSoundUpload').addEventListener('change', function (e) {
+	const file = e.target.files[0];
+	if (file) {
+		const url = URL.createObjectURL(file);
+		document.getElementById('winSound').src = url;
+	}
 });
 
-document.getElementById('loseSoundUpload').addEventListener('change', function(e) {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    document.getElementById('gameOverSound').src = url;
-  }
+document.getElementById('loseSoundUpload').addEventListener('change', function (e) {
+	const file = e.target.files[0];
+	if (file) {
+		const url = URL.createObjectURL(file);
+		document.getElementById('gameOverSound').src = url;
+	}
 });
 
 // Show Quit
 function showQuitOverlay() {
-  document.getElementById('quitOverlay').style.display = 'flex';
-  isPaused = true;
-  document.getElementById('bgMusic').pause();
+	document.getElementById('quitOverlay').style.display = 'flex';
+	isPaused = true;
+	document.getElementById('bgMusic').pause();
 }
 
 // Hide Quit
 function hideQuitOverlay() {
-  document.getElementById('quitOverlay').style.display = 'none';
-  isPaused = false;
-  if (gameActive) document.getElementById('bgMusic').play();
+	document.getElementById('quitOverlay').style.display = 'none';
+	isPaused = false;
+	if (gameActive) document.getElementById('bgMusic').play();
 }
 
 // Quit
 function quitToTitle() {
-  gameOverElement.style.display = 'none';
-  hideQuitOverlay();
-  gameActive = false;
-  document.getElementById('introScreen').style.display = 'flex';
-  
-  const bgMusic = document.getElementById('bgMusic');
-  const playPromise = bgMusic.play();
-  
-  if (playPromise !== undefined) {
-    playPromise.then(() => {
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
-    }).catch(error => {
-      console.log("Audio pause prevented:", error);
-    });
-  }
+	gameOverElement.style.display = 'none';
+	hideQuitOverlay();
+	gameActive = false;
+	document.getElementById('introScreen').style.display = 'flex';
+
+	const bgMusic = document.getElementById('bgMusic');
+	const playPromise = bgMusic.play();
+
+	if (playPromise !== undefined) {
+		playPromise
+			.then(() => {
+				bgMusic.pause();
+				bgMusic.currentTime = 0;
+			})
+			.catch((error) => {
+				console.log('Audio pause prevented:', error);
+			});
+	}
 }
 
 // Update pollen display
 function updatePollenDisplay() {
-
-    if (currentPollenColors.size == 0) {
-        currentColorElement.textContent = 'Current Pollen: None';
-        currentPollenColors.clear();
-    } else {
-        currentColorElement.innerHTML = 'Current Pollen: ' + 
-            Array.from(currentPollenColors.entries())
-                .map(([color, count]) => 
-                    `<span class="color-ball" style="background-color: ${color}"></span>${count}`)
-                .join(' ');
-    }
+	if (currentPollenColors.size == 0) {
+		currentColorElement.textContent = 'Current Pollen: None';
+		currentPollenColors.clear();
+	} else {
+		currentColorElement.innerHTML =
+			'Current Pollen: ' +
+			Array.from(currentPollenColors.entries())
+				.map(([color, count]) => `<span class="color-ball" style="background-color: ${color}"></span>${count}`)
+				.join(' ');
+	}
 }
 
 // Timer
 function updateTimer() {
-    if (!gameActive) return;
-    const now = Date.now();
-    let elapsed = now - gameStartTime;
-    if (pausedTime > 0) { 
-      gameStartTime = gameStartTime + pausedTime;
-      elapsed = 0;
-      pausedTime = 0;
-    }
-    const remaining = Math.max(0, gameSettings.duration - elapsed);
-    
-    const minutes = Math.floor(remaining / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
-    timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-    
-    if (remaining <= 0 || score >= gameSettings.pointsToWin) {
-        endGame();
-    }
+	if (!gameActive || isPaused) return;
+	const now = Date.now();
+	let elapsed = now - gameStartTime;
+	if (pausedTime > 0) {
+		gameStartTime = gameStartTime + pausedTime;
+		elapsed = 0;
+		pausedTime = 0;
+	}
+	const remaining = Math.max(0, gameSettings.duration - elapsed);
+
+	const minutes = Math.floor(remaining / 60000);
+	const seconds = Math.floor((remaining % 60000) / 1000);
+	timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+	if (remaining <= 0 || score >= gameSettings.pointsToWin) {
+		endGame();
+	}
 }
 
 // Game Finished
 function endGame() {
-    gameControls.style.display = 'none';
-    gameActive = false;
-    gameOverElement.style.display = 'block';
-    const finalMessage = document.getElementById('finalMessage');
-    const storyMessage = document.getElementById('storyMessage');
-    const title = document.getElementById('gameOverTitle');
-    
-    if (score >= gameSettings.pointsToWin) {
-        bgMusic.pause();
-        bgMusic.currentTime = 0;
-        document.getElementById('winSound').play();
-        title.textContent = 'YOU WIN!';
-        finalMessage.textContent = `Congratulations! You saved the harvest with ${score} points!`;
-        storyMessage.textContent = 'Thanks to your expert pollination skills, the farm produced a bountiful harvest. The community will thrive for another season!';
-        createFireworks();
-    } else {
-        bgMusic.pause();
-        bgMusic.currentTime = 0;
-        document.getElementById('gameOverSound').play();
-        title.textContent = 'GAME OVER';
-        finalMessage.textContent = `Time's up! You only scored ${score} points.`;
-        storyMessage.textContent = 'Without proper pollination, the crops failed to produce. The bank has foreclosed on the farm. Better luck next season...';
-    }
+	gameControls.style.display = 'none';
+	gameActive = false;
+	gameOverElement.style.display = 'block';
+	const finalMessage = document.getElementById('finalMessage');
+	const storyMessage = document.getElementById('storyMessage');
+	const title = document.getElementById('gameOverTitle');
+
+	if (score >= gameSettings.pointsToWin) {
+		bgMusic.pause();
+		bgMusic.currentTime = 0;
+		document.getElementById('winSound').play();
+		title.textContent = 'YOU WIN!';
+		finalMessage.textContent = `Congratulations! You saved the harvest with ${score} points!`;
+		storyMessage.textContent =
+			'Thanks to your expert pollination skills, the farm produced a bountiful harvest. The community will thrive for another season!';
+		createFireworks();
+	} else {
+		bgMusic.pause();
+		bgMusic.currentTime = 0;
+		document.getElementById('gameOverSound').play();
+		title.textContent = 'GAME OVER';
+		finalMessage.textContent = `Time's up! You only scored ${score} points.`;
+		storyMessage.textContent =
+			'Without proper pollination, the crops failed to produce. The bank has foreclosed on the farm. Better luck next season...';
+	}
 }
 
 // Begin Game
 function startNewGame() {
-
-    showGameControls();
-    document.getElementById('bgMusic').currentTime = 0;
-    score = 0;
-    scoreElement.textContent = 'Score: 0';
-    gameActive = true;
-    gameStartTime = Date.now();
-    gameOverElement.style.display = 'none';
-    flowers = [];
-    pollenBalls = [];
-    currentPollenColor = null;
-    currentPollenColors.clear();
-    updatePollenDisplay();
+	showGameControls();
+	document.getElementById('bgMusic').currentTime = 0;
+	score = 0;
+	scoreElement.textContent = 'Score: 0';
+	gameActive = true;
+	gameStartTime = Date.now();
+	gameOverElement.style.display = 'none';
+	flowers = [];
+	pollenBalls = [];
+	currentPollenColor = null;
+	currentPollenColors.clear();
+	updatePollenDisplay();
 }
 
 // Robot
 const robot = {
-    x: canvas.width / 2,
-    y: canvas.height / 2,
-    size: 40,
-    speed: gameSettings.speed,
-    direction: { x: 0, y: 0 }
+	x: canvas.width / 2,
+	y: canvas.height / 2,
+	size: 40,
+	speed: gameSettings.speed,
+	direction: { x: 0, y: 0 },
 };
 
 // Flowers and pollen balls
@@ -386,130 +395,129 @@ let flowers = [];
 let pollenBalls = [];
 
 class Flower {
-    constructor(type) {
-        this.x = Math.random() * (canvas.width - 60) + 30;
-        this.y = Math.random() * (canvas.height - 60) + 30;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.type = type; // 'male' or 'female'
-        this.size = 30;
-        this.lifetime = Math.random() * 5000 + 5000; // 5-10 seconds
-        this.born = Date.now();
-    }
+	constructor(type) {
+		this.x = Math.random() * (canvas.width - 60) + 30;
+		this.y = Math.random() * (canvas.height - 60) + 30;
+		this.color = colors[Math.floor(Math.random() * colors.length)];
+		this.type = type; // 'male' or 'female'
+		this.size = 30;
+		this.lifetime = Math.random() * 5000 + 5000; // 5-10 seconds
+		this.born = Date.now();
+	}
 
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        
-        // Draw petals
-        for (let i = 0; i < 6; i++) {
-            ctx.beginPath();
-            ctx.rotate(Math.PI / 3);
-            ctx.fillStyle = this.color;
-            if (this.type === 'male') {
-                ctx.ellipse(0, -this.size/2, 8, 15, 0, 0, Math.PI * 2);
-            } else {
-                ctx.ellipse(-this.size/2, 0, 15, 8, 0, 0, Math.PI * 2);
-            }
-            ctx.fill();
-        }
+	draw() {
+		ctx.save();
+		ctx.translate(this.x, this.y);
 
-        // Draw center
-        ctx.beginPath();
-        ctx.fillStyle = this.type === 'male' ? '#FFE5B4' : '#4A4A4A';
-        ctx.arc(0, 0, 10, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.restore();
-    }
+		// Draw petals
+		for (let i = 0; i < 6; i++) {
+			ctx.beginPath();
+			ctx.rotate(Math.PI / 3);
+			ctx.fillStyle = this.color;
+			if (this.type === 'male') {
+				ctx.ellipse(0, -this.size / 2, 8, 15, 0, 0, Math.PI * 2);
+			} else {
+				ctx.ellipse(-this.size / 2, 0, 15, 8, 0, 0, Math.PI * 2);
+			}
+			ctx.fill();
+		}
+
+		// Draw center
+		ctx.beginPath();
+		ctx.fillStyle = this.type === 'male' ? '#FFE5B4' : '#4A4A4A';
+		ctx.arc(0, 0, 10, 0, Math.PI * 2);
+		ctx.fill();
+
+		ctx.restore();
+	}
 }
 
 class PollenBall {
-    constructor(x, y, dx, dy, color) {
-        this.x = x;
-        this.y = y;
-        this.dx = dx;
-        this.dy = dy;
-        this.color = color;
-        this.size = 8;
-    }
+	constructor(x, y, dx, dy, color) {
+		this.x = x;
+		this.y = y;
+		this.dx = dx;
+		this.dy = dy;
+		this.color = color;
+		this.size = 8;
+	}
 
-    update() {
-        this.x += this.dx;
-        this.y += this.dy;
-    }
+	update() {
+		this.x += this.dx;
+		this.y += this.dy;
+	}
 
-    draw() {
-        ctx.beginPath();
-        ctx.fillStyle = this.color;
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
+	draw() {
+		ctx.beginPath();
+		ctx.fillStyle = this.color;
+		ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+		ctx.fill();
+	}
 }
-
 
 // Update robot drawing to show quadcopter appearance and current color
 function drawRobot() {
-    ctx.save();
-    ctx.translate(robot.x, robot.y);
-    
-    // Calculate angle to mouse
-    const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-    ctx.rotate(angle);
+	ctx.save();
+	ctx.translate(robot.x, robot.y);
 
-    // Draw tank tracks
-    const time = Date.now() / 100;
-    ctx.strokeStyle = '#555555';
-    ctx.fillStyle = '#333333';
-    ctx.lineWidth = 3;
+	// Calculate angle to mouse
+	const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+	ctx.rotate(angle);
 
-    // Left track
-    ctx.fillRect(-30, -25, 60, 15);
-    for (let i = 0; i < 6; i++) {
-        const offset = (time % 20) - 10;
-        ctx.beginPath();
-        ctx.moveTo(-30 + (i * 10) + offset, -25);
-        ctx.lineTo(-30 + (i * 10) + offset, -10);
-        ctx.stroke();
-    }
+	// Draw tank tracks
+	const time = Date.now() / 100;
+	ctx.strokeStyle = '#555555';
+	ctx.fillStyle = '#333333';
+	ctx.lineWidth = 3;
 
-    // Right track
-    ctx.fillRect(-30, 10, 60, 15);
-    for (let i = 0; i < 6; i++) {
-        const offset = (time % 20) - 10;
-        ctx.beginPath();
-        ctx.moveTo(-30 + (i * 10) + offset, 10);
-        ctx.lineTo(-30 + (i * 10) + offset, 25);
-        ctx.stroke();
-    }
+	// Left track
+	ctx.fillRect(-30, -25, 60, 15);
+	for (let i = 0; i < 6; i++) {
+		const offset = (time % 20) - 10;
+		ctx.beginPath();
+		ctx.moveTo(-30 + i * 10 + offset, -25);
+		ctx.lineTo(-30 + i * 10 + offset, -10);
+		ctx.stroke();
+	}
 
-    // Draw body
-    ctx.fillStyle = '#666666';
-    ctx.fillRect(-20, -10, 40, 20);
+	// Right track
+	ctx.fillRect(-30, 10, 60, 15);
+	for (let i = 0; i < 6; i++) {
+		const offset = (time % 20) - 10;
+		ctx.beginPath();
+		ctx.moveTo(-30 + i * 10 + offset, 10);
+		ctx.lineTo(-30 + i * 10 + offset, 25);
+		ctx.stroke();
+	}
 
-    // Draw cannon
-    ctx.fillStyle = '#444444';
-    ctx.fillRect(0, -5, 35, 10); // Main cannon body
-    ctx.beginPath();
-    ctx.arc(35, 0, 5, 0, Math.PI * 2); // Cannon tip
-    ctx.fill();
+	// Draw body
+	ctx.fillStyle = '#666666';
+	ctx.fillRect(-20, -10, 40, 20);
 
-    // Draw pollen storage behind cannon
-    if (currentPollenColor) {
-        ctx.fillStyle = currentPollenColor;
-        ctx.beginPath();
-        ctx.arc(-5, 0, 8, 0, Math.PI * 2);
-        ctx.fill();
-    }
+	// Draw cannon
+	ctx.fillStyle = '#444444';
+	ctx.fillRect(0, -5, 35, 10); // Main cannon body
+	ctx.beginPath();
+	ctx.arc(35, 0, 5, 0, Math.PI * 2); // Cannon tip
+	ctx.fill();
 
-    ctx.restore();
+	// Draw pollen storage behind cannon
+	if (currentPollenColor) {
+		ctx.fillStyle = currentPollenColor;
+		ctx.beginPath();
+		ctx.arc(-5, 0, 8, 0, Math.PI * 2);
+		ctx.fill();
+	}
+
+	ctx.restore();
 }
 
 function updateInstructions() {
-  const instructionsList = document.querySelector('#instructions ul');
-  let collectInstructions = 'Aproach male flowers to collect their pollen';
+	const instructionsList = document.querySelector('#instructions ul');
+	let collectInstructions = 'Aproach male flowers to collect their pollen';
 
-  if (isMobile === true) {
-    instructionsList.innerHTML = `
+	if (isMobile === true) {
+		instructionsList.innerHTML = `
     <li><i class="fas fa-pause"></i> to PAUSE,  <i class="fas fa-play"></i> RESUME</li>
     <li><i class="fas fa-sign-out-alt exit-icon"></i> to QUIT</li>
     <li>Move your robot pollinator by tapping screen - it will follow!</li>
@@ -518,10 +526,10 @@ function updateInstructions() {
     <li><i class="fas fa-recycle switch-icon"></i> to switch between collected pollen colors</li>
     <li>Match pollen color to female flower color for +${gameSettings.pointsPerMatch} points</li>
     <li>Wrong color match will subtract ${gameSettings.penaltyPoints} points</li>
-    <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration/1000} seconds to win!</li>
+    <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration / 1000} seconds to win!</li>
   `;
-  } else {
-  instructionsList.innerHTML = `
+	} else {
+		instructionsList.innerHTML = `
     <li>Press [P] to PAUSE / RESUME</li>
     <li>Press [Q] to QUIT</li>
     <li>Move your robot pollinator by moving your mouse cursor - it will follow!</li>
@@ -530,397 +538,409 @@ function updateInstructions() {
     <li>Right-click to switch between collected pollen colors</li>
     <li>Match pollen color to female flower color for +${gameSettings.pointsPerMatch} points</li>
     <li>Wrong color matches will subtract ${gameSettings.penaltyPoints} points</li>
-    <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration/1000} seconds to win!</li>
+    <li>Reach ${gameSettings.pointsToWin} points within ${gameSettings.duration / 1000} seconds to win!</li>
   `;
-  }
+	}
 }
 
 function showInstructions() {
-  document.getElementById('instructions').style.display = 'block';
-  document.getElementById('introScreen').style.display = 'none';
+	document.getElementById('instructions').style.display = 'block';
+	document.getElementById('introScreen').style.display = 'none';
 }
 
 function hideInstructions() {
-  document.getElementById('instructions').style.display = 'none';
-  document.getElementById('introScreen').style.display = 'flex';
+	document.getElementById('instructions').style.display = 'none';
+	document.getElementById('introScreen').style.display = 'flex';
 }
 
 // Play Button User Action
 function startGame() {
-  document.getElementById('introScreen').style.display = 'none';
-  // Make sure we have user interaction before playing
-  try {
-    const bgMusic = document.getElementById('bgMusic');
-    bgMusic.volume = 0.5; // Lower volume a bit
-    const playPromise = bgMusic.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {
-        console.log("Playback prevented. Resuming...");
-      });
-    }
-  } catch (e) {
-    console.log("Audio play failed:", e);
-  }
+	document.getElementById('introScreen').style.display = 'none';
+	// Make sure we have user interaction before playing
+	try {
+		const bgMusic = document.getElementById('bgMusic');
+		bgMusic.volume = 0.5; // Lower volume a bit
+		const playPromise = bgMusic.play();
 
-  startNewGame();
+		if (playPromise !== undefined) {
+			playPromise.catch((error) => {
+				console.log('Playback prevented. Resuming...');
+			});
+		}
+	} catch (e) {
+		console.log('Audio play failed:', e);
+	}
+
+	startNewGame();
 }
 
 function createFireworks() {
-  for (let i = 0; i < 20; i++) {
-    setTimeout(() => {
-      const firework = document.createElement('div');
-      firework.className = 'firework';
-      firework.style.left = Math.random() * window.innerWidth + 'px';
-      firework.style.top = Math.random() * window.innerHeight + 'px';
-      firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      document.body.appendChild(firework);
-      setTimeout(() => {
-        document.body.removeChild(firework);
-      }, 1000);
-    }, i * 200);
-  }
+	for (let i = 0; i < 20; i++) {
+		setTimeout(() => {
+			const firework = document.createElement('div');
+			firework.className = 'firework';
+			firework.style.left = Math.random() * window.innerWidth + 'px';
+			firework.style.top = Math.random() * window.innerHeight + 'px';
+			firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+			document.body.appendChild(firework);
+			setTimeout(() => {
+				document.body.removeChild(firework);
+			}, 1000);
+		}, i * 200);
+	}
 }
 
 // Add tab switching functions
 function openTab(tabName) {
-  // Hide all tab contents
-  document.querySelectorAll('.tab-content').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  
-  // Remove active class from all buttons
-  document.querySelectorAll('.tab-button').forEach(button => {
-    button.classList.remove('active');
-  });
-  
-  // Show selected tab content
-  document.getElementById(tabName).classList.add('active');
-  
-  // Add active class to clicked button
-  event.target.classList.add('active');
+	// Hide all tab contents
+	document.querySelectorAll('.tab-content').forEach((tab) => {
+		tab.classList.remove('active');
+	});
+
+	// Remove active class from all buttons
+	document.querySelectorAll('.tab-button').forEach((button) => {
+		button.classList.remove('active');
+	});
+
+	// Show selected tab content
+	document.getElementById(tabName).classList.add('active');
+
+	// Add active class to clicked button
+	event.target.classList.add('active');
 }
 
 // Game loop
 function gameLoop() {
-    if (!gameActive || isPaused) {
-        requestAnimationFrame(gameLoop);
-        return;
-    }
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Move robot towards mouse
-    const dx = mouseX - robot.x;
-    const dy = mouseY - robot.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    
-    if (dist > 5) {
-        robot.x += (dx / dist) * robot.speed;
-        robot.y += (dy / dist) * robot.speed;
-    }
-    
-    // Spawn flowers
-    if (Math.random() < 0.02 && flowers.length < 10) {
-        flowers.push(new Flower(Math.random() < 0.5 ? 'male' : 'female'));
-    }
-    
-    // Update and draw flowers
-    flowers = flowers.filter(flower => {
-        flower.draw();
-        return Date.now() - flower.born < flower.lifetime;
-    });
-    
-    // Update and draw pollen balls
-    pollenBalls = pollenBalls.filter(ball => {
-        ball.update();
-        ball.draw();
-        return ball.x > 0 && ball.x < canvas.width && 
-               ball.y > 0 && ball.y < canvas.height;
-    });
-    
-    drawRobot();
-    updateTimer();
-    requestAnimationFrame(gameLoop);
+	if (!gameActive || isPaused) {
+		requestAnimationFrame(gameLoop);
+		return;
+	}
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+	// Move robot towards mouse
+	const dx = mouseX - robot.x;
+	const dy = mouseY - robot.y;
+	const dist = Math.sqrt(dx * dx + dy * dy);
+
+	if (dist > 5) {
+		robot.x += (dx / dist) * robot.speed;
+		robot.y += (dy / dist) * robot.speed;
+	}
+
+	// Spawn flowers
+	if (Math.random() < 0.02 && flowers.length < 10) {
+		flowers.push(new Flower(Math.random() < 0.5 ? 'male' : 'female'));
+	}
+
+	// Update and draw flowers
+	flowers = flowers.filter((flower) => {
+		flower.draw();
+		return Date.now() - flower.born < flower.lifetime;
+	});
+
+	// Update and draw pollen balls
+	pollenBalls = pollenBalls.filter((ball) => {
+		ball.update();
+		ball.draw();
+		return ball.x > 0 && ball.x < canvas.width && ball.y > 0 && ball.y < canvas.height;
+	});
+
+	drawRobot();
+	updateTimer();
+	requestAnimationFrame(gameLoop);
 }
 
 // Event listeners
 function bindMobile() {
-  let pauseIcon = document.getElementById('pauseIcon');
-  let quitIcon = document.getElementById('quitIcon');
-  let switchIcon = document.getElementById('switchIcon');
-  let fireIcon = document.getElementById('fireIcon'); 
+	let pauseIcon = document.getElementById('pauseIcon');
+	let quitIcon = document.getElementById('quitIcon');
+	let switchIcon = document.getElementById('switchIcon');
+	let fireIcon = document.getElementById('fireIcon');
 
-  // Add event listeners for touch events
-  canvas.addEventListener('touchstart', handleTouchStart, false);
-  canvas.addEventListener('touchend', handleTouchEnd, false);
+	// Add event listeners for touch events
+	canvas.addEventListener('touchstart', handleTouchStart, false);
+	canvas.addEventListener('touchend', handleTouchEnd, false);
 
-  function handleTouchStart(e) {
-    //console.log('Touch start');
-    // Get the touch point coordinates
-    touch = e.touches[0]; // Get the first touch point
-  }
+	function handleTouchStart(e) {
+		//console.log('Touch start');
+		// Get the touch point coordinates
+		touch = e.touches[0]; // Get the first touch point
+	}
 
-  function handleTouchEnd(e) {
-    //console.log('Touch End');
-    // Follow tap
-    mouseX = touch.clientX;
-    mouseY = touch.clientY - pointerCorrection;
-  } 
+	// Follow Tap
+	function handleTouchEnd(e) {
+		//console.log('Touch End');
+		// Follow tap
+		mouseX = touch.clientX;
+		mouseY = touch.clientY - pointerCorrection;
+	}
 
-  // Pause
-  pauseIcon.addEventListener('touchend', (e) => {
+	// Pause
+	pauseIcon.addEventListener('touchend', (e) => {
+		isPaused = !isPaused;
+		const pauseOverlay = document.getElementById('pauseOverlay');
+		pauseOverlay.style.display = isPaused ? 'flex' : 'none';
 
-    isPaused = !isPaused;
-    const pauseOverlay = document.getElementById('pauseOverlay');
-    pauseOverlay.style.display = isPaused ? 'flex' : 'none';
-    
-    // Handle background music with promise
-    const bgMusic = document.getElementById('bgMusic');
-    if (isPaused) {
-      quitIcon.style.visibility= 'hidden';
-      switchIcon.style.visibility= 'hidden';
-      fireIcon.style.visibility= 'hidden';
+		// Handle background music with promise
+		const bgMusic = document.getElementById('bgMusic');
+		if (isPaused) {
+			quitIcon.style.visibility = 'hidden';
+			switchIcon.style.visibility = 'hidden';
+			fireIcon.style.visibility = 'hidden';
 
-      pauseStart = Date.now();
-        console.log('Paused Game!');
-        pauseIcon.classList.remove('fa-pause');
-        pauseIcon.classList.add('fa-play');
-        const playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                bgMusic.pause();
-            }).catch(error => {
-                console.log("Audio pause prevented:", error);
-            });
-        }
-    } else {
-      quitIcon.style.visibility= 'visible';
-      switchIcon.style.visibility= 'visible';
-      fireIcon.style.visibility= 'visible';
-      
-      pausedTime = Date.now() - pauseStart;
-      console.log('Resumed Game!');
-      pauseIcon.classList.remove('fa-play');
-      pauseIcon.classList.add('fa-pause');
+			pauseStart = Date.now();
+			console.log('Paused Game!');
+			pauseIcon.classList.remove('fa-pause');
+			pauseIcon.classList.add('fa-play');
+			const playPromise = bgMusic.play();
+			if (playPromise !== undefined) {
+				playPromise
+					.then(() => {
+						bgMusic.pause();
+					})
+					.catch((error) => {
+						console.log('Audio pause prevented:', error);
+					});
+			}
+		} else {
+			quitIcon.style.visibility = 'visible';
+			switchIcon.style.visibility = 'visible';
+			fireIcon.style.visibility = 'visible';
 
-        try {
-            bgMusic.play().catch(error => {
-                console.log("Playback prevented:", error);
-            });
-        } catch (e) {
-            console.log("Audio play failed:", e);
-        }
-    }
-  });
+			pausedTime = Date.now() - pauseStart;
+			console.log('Resumed Game!');
+			pauseIcon.classList.remove('fa-play');
+			pauseIcon.classList.add('fa-pause');
 
-  // Quit
-  quitIcon.addEventListener('touchend', showQuitOverlay);
+			try {
+				bgMusic.play().catch((error) => {
+					console.log('Playback prevented:', error);
+				});
+			} catch (e) {
+				console.log('Audio play failed:', e);
+			}
+		}
+	});
 
-  // Switch
-  switchIcon.addEventListener('touchend', (e) => {
-    e.preventDefault();
-    console.log('Switched pollen!');
-    if (currentPollenColors.size > 0) {
-      const colors = Array.from(currentPollenColors.keys());
-      const currentIndex = colors.indexOf(currentPollenColor);
-      currentPollenColor = colors[(currentIndex + 1) % colors.length];
-    }else{
-      currentPollenColors.clear();
-    }
-  });
+	// Quit Game
+	quitIcon.addEventListener('touchend', showQuitOverlay);
 
-  // Fire
-  fireIcon.addEventListener('touchend', (e) => {
-    if (currentPollenColor) { 
-      document.getElementById('shootSound').play();
-      const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-      const speed = 10;
-      const count = currentPollenColors.get(currentPollenColor);
-      if (count > 0) {
-        pollenBalls.push(new PollenBall(
-          robot.x, robot.y,
-          Math.cos(angle) * speed,
-          Math.sin(angle) * speed,
-          currentPollenColor
-        ));
-        currentPollenColors.set(currentPollenColor, count - 1);
-        if (count === 1) {
-          currentPollenColors.delete(currentPollenColor);
-          const colors = Array.from(currentPollenColors.keys());
-          currentPollenColor = colors.length > 1 ? colors[0] : null;
-        }
-        if (currentPollenColors.get(currentPollenColor) == 0) {
-          currentPollenColors.delete(currentPollenColor);
-          if (currentPollenColors.size > 0) {
-              currentPollenColor = Array.from(currentPollenColors.keys())[0];
-          } else {
-              currentPollenColor = null;
-          }
-      } 
-      }       
-    updatePollenDisplay();  
-    }
-  });  
-} 
-if (isMobile === false) {
-  // Follow mouse
-  window.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY - pointerCorrection;
-  });
+	// Switch Pollen
+	switchIcon.addEventListener('touchend', (e) => {
+		e.preventDefault();
+		console.log('Switched pollen!');
+		if (currentPollenColors.size > 0) {
+			const colors = Array.from(currentPollenColors.keys());
+			const currentIndex = colors.indexOf(currentPollenColor);
+			currentPollenColor = colors[(currentIndex + 1) % colors.length];
+		} else {
+			currentPollenColors.clear();
+		}
+	});
 
-  // Right-click (Switch)
-  window.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    if (currentPollenColors.size > 0) {
-      const colors = Array.from(currentPollenColors.keys());
-      const currentIndex = colors.indexOf(currentPollenColor);
-      currentPollenColor = colors[(currentIndex + 1) % colors.length];
-    }else{
-      currentPollenColors.clear();
-    }
-  });
-
-  // Left click
-  window.addEventListener('mousedown', (e) => {
-    if (e.button === 0 && currentPollenColor) { 
-      document.getElementById('shootSound').play();
-      const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
-      const speed = 10;
-      const count = currentPollenColors.get(currentPollenColor);
-      if (count > 0) {
-        pollenBalls.push(new PollenBall(
-          robot.x, robot.y,
-          Math.cos(angle) * speed,
-          Math.sin(angle) * speed,
-          currentPollenColor
-        ));
-        currentPollenColors.set(currentPollenColor, count - 1);
-        if (count === 1) {
-          currentPollenColors.delete(currentPollenColor);
-          const colors = Array.from(currentPollenColors.keys());
-          currentPollenColor = colors.length > 1 ? colors[0] : null;
-        }
-        if (currentPollenColors.get(currentPollenColor) == 0) {
-          currentPollenColors.delete(currentPollenColor);
-          if (currentPollenColors.size > 0) {
-              currentPollenColor = Array.from(currentPollenColors.keys())[0];
-          } else {
-              currentPollenColor = null;
-          }
-      } 
-      }       
-    updatePollenDisplay();  
-    }
-  });
+	// Fire
+	fireIcon.addEventListener('touchend', (e) => {
+		if (currentPollenColor) {
+			document.getElementById('shootSound').play();
+			const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+			const speed = 10;
+			const count = currentPollenColors.get(currentPollenColor);
+			if (count > 0) {
+				pollenBalls.push(
+					new PollenBall(
+						robot.x,
+						robot.y,
+						Math.cos(angle) * speed,
+						Math.sin(angle) * speed,
+						currentPollenColor
+					)
+				);
+				currentPollenColors.set(currentPollenColor, count - 1);
+				if (count === 1) {
+					currentPollenColors.delete(currentPollenColor);
+					const colors = Array.from(currentPollenColors.keys());
+					currentPollenColor = colors.length > 1 ? colors[0] : null;
+				}
+				if (currentPollenColors.get(currentPollenColor) == 0) {
+					currentPollenColors.delete(currentPollenColor);
+					if (currentPollenColors.size > 0) {
+						currentPollenColor = Array.from(currentPollenColors.keys())[0];
+					} else {
+						currentPollenColor = null;
+					}
+				}
+			}
+			updatePollenDisplay();
+		}
+	});
 }
-  // Key Press Events
-  window.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyP' && gameActive) {
-        isPaused = !isPaused;
-        const pauseOverlay = document.getElementById('pauseOverlay');
-        pauseOverlay.style.display = isPaused ? 'flex' : 'none';
-        
-        // Handle background music with promise
-        const bgMusic = document.getElementById('bgMusic');
-        if (isPaused) {
-            const playPromise = bgMusic.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    bgMusic.pause();
-                }).catch(error => {
-                    console.log("Audio pause prevented:", error);
-                });
-            }
-        } else {
-            try {
-                bgMusic.play().catch(error => {
-                    console.log("Playback prevented:", error);
-                });
-            } catch (e) {
-                console.log("Audio play failed:", e);
-            }
-        }
-      }
-      if (e.code === 'KeyQ' && gameActive) {
-        showQuitOverlay();
-      }
+if (isMobile === false) {
+	// Follow mouse
+	window.addEventListener('mousemove', (e) => {
+		mouseX = e.clientX;
+		mouseY = e.clientY - pointerCorrection;
+	});
 
-  });
+	// Switch Pollen (Right-click)
+	window.addEventListener('contextmenu', (e) => {
+		e.preventDefault();
+		if (currentPollenColors.size > 0) {
+			const colors = Array.from(currentPollenColors.keys());
+			const currentIndex = colors.indexOf(currentPollenColor);
+			currentPollenColor = colors[(currentIndex + 1) % colors.length];
+		} else {
+			currentPollenColors.clear();
+		}
+	});
+
+	// Fire (Left-click)
+	window.addEventListener('mousedown', (e) => {
+		if (e.button === 0 && currentPollenColor) {
+			document.getElementById('shootSound').play();
+			const angle = Math.atan2(mouseY - robot.y, mouseX - robot.x);
+			const speed = 10;
+			const count = currentPollenColors.get(currentPollenColor);
+			if (count > 0) {
+				pollenBalls.push(
+					new PollenBall(
+						robot.x,
+						robot.y,
+						Math.cos(angle) * speed,
+						Math.sin(angle) * speed,
+						currentPollenColor
+					)
+				);
+				currentPollenColors.set(currentPollenColor, count - 1);
+				if (count === 1) {
+					currentPollenColors.delete(currentPollenColor);
+					const colors = Array.from(currentPollenColors.keys());
+					currentPollenColor = colors.length > 1 ? colors[0] : null;
+				}
+				if (currentPollenColors.get(currentPollenColor) == 0) {
+					currentPollenColors.delete(currentPollenColor);
+					if (currentPollenColors.size > 0) {
+						currentPollenColor = Array.from(currentPollenColors.keys())[0];
+					} else {
+						currentPollenColor = null;
+					}
+				}
+			}
+			updatePollenDisplay();
+		}
+	});
+}
+// Key Press Events
+
+// Pause
+window.addEventListener('keydown', (e) => {
+	if (e.code === 'KeyP' && gameActive) {
+		isPaused = !isPaused;
+		const pauseOverlay = document.getElementById('pauseOverlay');
+		pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+
+		// Handle background music with promise
+		const bgMusic = document.getElementById('bgMusic');
+		if (isPaused) {
+			pauseStart = Date.now();
+			const playPromise = bgMusic.play();
+			if (playPromise !== undefined) {
+				playPromise
+					.then(() => {
+						bgMusic.pause();
+					})
+					.catch((error) => {
+						console.log('Audio pause prevented:', error);
+					});
+			}
+		} else {
+			pausedTime = Date.now() - pauseStart;
+			try {
+				bgMusic.play().catch((error) => {
+					console.log('Playback prevented:', error);
+				});
+			} catch (e) {
+				console.log('Audio play failed:', e);
+			}
+		}
+	}
+
+	// Quit Game
+	if (e.code === 'KeyQ' && gameActive) {
+		showQuitOverlay();
+	}
+});
 
 // Check for pollen collection approach
 setInterval(() => {
-  if (!gameActive) return;
-  
-  pollenBalls.forEach((ball, index) => {
-    flowers.forEach((flower, flowerIndex) => {
-        if (flower.type === 'female' &&
-            Math.hypot(ball.x - flower.x, ball.y - flower.y) < flower.size) {
-            if (ball.color === flower.color) {
-                document.getElementById('successSound').play();
-                score += gameSettings.pointsPerMatch;
-            } else {
-                document.getElementById('failureSound').play();
-                score = Math.max(0, score - gameSettings.penaltyPoints);
-            }
-            scoreElement.textContent = `Score: ${score}`;
-            pollenBalls.splice(index, 1);
-            flowers.splice(flowerIndex, 1);
-        }
-    });
-  });
+	if (!gameActive) return;
 
-  // Check for approach to male flowers
-  const nearbyMaleFlowers = flowers.filter(f =>
-      f.type === 'male' &&
-      Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
-  );
+	pollenBalls.forEach((ball, index) => {
+		flowers.forEach((flower, flowerIndex) => {
+			if (flower.type === 'female' && Math.hypot(ball.x - flower.x, ball.y - flower.y) < flower.size) {
+				if (ball.color === flower.color) {
+					document.getElementById('successSound').play();
+					score += gameSettings.pointsPerMatch;
+				} else {
+					document.getElementById('failureSound').play();
+					score = Math.max(0, score - gameSettings.penaltyPoints);
+				}
+				scoreElement.textContent = `Score: ${score}`;
+				pollenBalls.splice(index, 1);
+				flowers.splice(flowerIndex, 1);
+			}
+		});
+	});
 
-  if (nearbyMaleFlowers.length > 0) {
-      document.getElementById('pollenCollectSound').play();
-      // Get just the first flower and collect 1 pollen
-      const flower = nearbyMaleFlowers[0];
-      const count = currentPollenColors.get(flower.color) || 0;
-      currentPollenColors.set(flower.color, count + 1);
-      if (!currentPollenColor) currentPollenColor = flower.color;
+	// Check for approach to male flowers
+	const nearbyMaleFlowers = flowers.filter(
+		(f) => f.type === 'male' && Math.hypot(f.x - robot.x, f.y - robot.y) < f.size + robot.size
+	);
 
-      // Remove the collected flower
-      flowers = flowers.filter(f => f !== flower);
+	if (nearbyMaleFlowers.length > 0) {
+		document.getElementById('pollenCollectSound').play();
+		// Get just the first flower and collect 1 pollen
+		const flower = nearbyMaleFlowers[0];
+		const count = currentPollenColors.get(flower.color) || 0;
+		currentPollenColors.set(flower.color, count + 1);
+		if (!currentPollenColor) currentPollenColor = flower.color;
 
-      updatePollenDisplay();
-  }
+		// Remove the collected flower
+		flowers = flowers.filter((f) => f !== flower);
+
+		updatePollenDisplay();
+	}
 }, 16);
 
 // Function to get the screen width
 function getScreenWidth() {
-  return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 }
 
 // Function to detect mobile devices
 function isMobileDevice() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return (
-    /android/i.test(userAgent) ||
-    /webos/i.test(userAgent) ||
-    /iphone/i.test(userAgent) ||
-    /ipad/i.test(userAgent) ||
-    /ipod/i.test(userAgent) ||
-    /blackberry/i.test(userAgent) ||
-    /windows phone/i.test(userAgent)
-  );
+	const userAgent = navigator.userAgent.toLowerCase();
+	return (
+		/android/i.test(userAgent) ||
+		/webos/i.test(userAgent) ||
+		/iphone/i.test(userAgent) ||
+		/ipad/i.test(userAgent) ||
+		/ipod/i.test(userAgent) ||
+		/blackberry/i.test(userAgent) ||
+		/windows phone/i.test(userAgent)
+	);
 }
 
 // Replace footer with game controls
 function showGameControls() {
-  gameControls.style.display = 'block';
+	gameControls.style.display = 'block';
 }
 
 // Function to remove all event listeners
 function removeListeners(element) {
-  const clonedElement = element.cloneNode(true);
-  element.parentNode.replaceChild(clonedElement, element);
-  return clonedElement;
+	const clonedElement = element.cloneNode(true);
+	element.parentNode.replaceChild(clonedElement, element);
+	return clonedElement;
 }
 
 // Set canvas
