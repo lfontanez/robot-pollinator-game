@@ -7,15 +7,15 @@
  * R1 Software - The soul is in the software
  * https://r1software.com
  */
-body {
+ body {
   margin: 0;
   padding: 0;
   height: 100vh;
   background: #1a2432;
   font-family: Arial, sans-serif;
   box-sizing: border-box;
+  overflow: hidden;
 }
-
 #quitOverlay {
   position: fixed;
   top: 0;
@@ -30,17 +30,14 @@ body {
   color: white;
   z-index: 99;
 }
-
 #quitOverlay h2 {
   font-size: 48px;
   margin-bottom: 30px;
 }
-
 .quit-buttons {
   display: flex;
   gap: 20px;
 }
-
 .quit-buttons button {
   padding: 15px 30px;
   font-size: 24px;
@@ -50,11 +47,9 @@ body {
   border-radius: 5px;
   color: white;
 }
-
 .quit-buttons button:first-child {
   background: #FF6B6B;
 }
-
 #gameCanvas {
   position: relative;
   background: linear-gradient(#2a3442, #1a2432);
@@ -63,7 +58,6 @@ body {
   overflow: hidden;
   background-position: center;
 }
-
 #score {
   position: fixed;
   top: 20px;
@@ -71,7 +65,6 @@ body {
   color: white;
   font-size: 24px;
 }
-
 #timer {
   position: fixed;
   top: 20px;
@@ -79,7 +72,6 @@ body {
   color: white;
   font-size: 24px;
 }
-
 #currentColor {
   position: fixed;
   top: 60px;
@@ -90,18 +82,15 @@ body {
   align-items: center;
   gap: 10px;
 }
-
 .color-ball {
   width: 15px;
   height: 15px;
   border-radius: 50%;
   display: inline-block;
 }
-
 #gameOverTitle {
   font-size: xxx-large;
 }
-
 #gameOver {
   width: 80%;
   max-width: 600px;
@@ -117,7 +106,6 @@ body {
   text-align: center;
   z-index: 100;
 }
-
 #gameOver button {
   margin-top: 10px;
   padding: 10px 20px;
@@ -127,7 +115,6 @@ body {
   border: none;
   border-radius: 5px;
 }
-
 #title {
   display: block;
   width: 100%;
@@ -135,7 +122,6 @@ body {
   max-height: 180px;
   margin: 10px auto;
 }
-
 #introScreen {
   position: fixed;
   top: 0;
@@ -146,8 +132,8 @@ body {
   z-index: 100;
   background-image: url('../backgrounds/title.jpg');
   background-size: cover;
+  overflow: hidden;
 }
-
 #menuButtons {
   position: fixed;
   width: 100%;
@@ -157,7 +143,6 @@ body {
   text-align: center;
   color: white;
 }
-
 #introScreen button {
   margin: 5px;
   padding: 10px 15px;
@@ -168,7 +153,6 @@ body {
   border-radius: 5px;
   color: white;
 }
-
 #instructions {
   display: none;
   position: fixed;
@@ -182,7 +166,6 @@ body {
   max-width: 600px;
   z-index: 101;
 }
-
 #instructions button {
   margin-top: 20px;
   padding: 10px 20px;
@@ -193,7 +176,6 @@ body {
   border-radius: 5px;
   color: white;
 }
-
 #settingsScreen {
   position: fixed;
   top: 0;
@@ -208,12 +190,10 @@ body {
   color: white;
   z-index: 100;
 }
-
 #settingsScreen h2 {
   color: #4ECDC4;
   margin-bottom: 20px;
 }
-
 .settings-form {
   display: flex;
   flex-direction: column;
@@ -221,20 +201,16 @@ body {
   width: 80%;
   max-width: 500px;
 }
-
 .settings-form label {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
-.settings-form input,
-.settings-form select {
+.settings-form input, .settings-form select {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #4ECDC4;
 }
-
 .settings-form button {
   margin: 10px;
   padding: 10px 20px;
@@ -244,7 +220,6 @@ body {
   color: white;
   cursor: pointer;
 }
-
 .firework {
   position: fixed;
   width: 10px;
@@ -252,25 +227,21 @@ body {
   border-radius: 50%;
   animation: explode 1s ease-out forwards;
 }
-
 @keyframes explode {
   0% {
     transform: scale(1);
     opacity: 1;
   }
-
   100% {
     transform: scale(20);
     opacity: 0;
   }
 }
-
 .settings-tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
-
 .tab-button {
   padding: 10px 20px;
   background: transparent;
@@ -279,19 +250,15 @@ body {
   cursor: pointer;
   border-radius: 5px;
 }
-
 .tab-button.active {
   background: #4ECDC4;
 }
-
 .tab-content {
   display: none;
 }
-
 .tab-content.active {
   display: block;
 }
-
 #footer {
   position: fixed;
   text-align: center;
@@ -301,7 +268,6 @@ body {
   font-size: small;
   z-index: 200;
 }
-
 #pauseOverlay {
   position: fixed;
   top: 0;
@@ -316,47 +282,38 @@ body {
   z-index: 99;
   overflow: auto;
 }
-
 #pauseOverlay h2 {
   font-size: 48px;
   margin-bottom: 20px;
 }
-
 #pauseOverlay p {
   font-size: 24px;
   margin-bottom: 10px;
 }
-
 #gameControls {
   position: relative;
   display: none;
   color: #ffffff;
   height: 50px;
 }
-
 .right-controls,
 .left-controls {
   margin-top: 10px;
 }
-
 .left-controls {
   float: left;
 }
-
 .right-controls {
   float: right;
 }
-
 .game-stats {
   position: relative;
   height: 80px;
 }
-
 .icon-container {
   display: block;
   height: 50px;
 }
-
 .icon {
   font-size: 4rem;
   color: #ffffff;
@@ -364,28 +321,23 @@ body {
   padding-left: 30px;
   padding-right: 20px;
 }
-
 /* Media query for small screens */
 @media (max-width: 768px) {
   #introScreen {
     background-image: url('../backgrounds/title2.jpg');
   }
-
   #gameCanvas {
     background-image: url('../backgrounds/terrain2.jpg');
   }
-
   #instructions {
     font-size: 0.9em;
     padding: 30px;
     border-radius: 10px;
     width: 90%;
   }
-
   #instructions ul {
     padding-inline-start: 10px;
   }
-
   .icon {
     font-size: 2.5rem;
   }
